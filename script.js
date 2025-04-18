@@ -1,15 +1,9 @@
 let particles = [], sliders = {}, m, n, a, b, v, N;
 let current = {}, target = {};
 let dotColorPicker, bgColorPicker;
-let rotateEnabled = true;
-let angle = 0;
-
-// vibration strength params
-let A = 0.02;
-let minWalk = 0.002;
 
 const settings = {
-  nParticles: 70000,
+  nParticles: 100000,
   drawHeatmap: false
 };
 
@@ -35,13 +29,9 @@ function DOMinit() {
   dotColorPicker = select('#dotColor');
   bgColorPicker = select('#bgColor');
 
-  select('#rotate').changed(() => {
-    rotateEnabled = select('#rotate').checked();
-  });
-
   select('#toggleUI').mousePressed(() => {
-    const ui = document.getElementById('ui');
-    ui.style.display = ui.style.display === 'none' ? 'block' : 'none';
+    const panel = document.querySelector('header');
+    panel.classList.toggle('hidden');
   });
 
   for (let key in sliders) {
@@ -67,13 +57,11 @@ class Particle {
   move() {
     let eq = chladni(this.x, this.y, a, b, m, n);
     let amp = v * abs(eq);
-    if (amp <= minWalk) amp = minWalk;
-
+    if (amp <= 0.002) amp = 0.002;
     this.x += random(-amp, amp);
     this.y += random(-amp, amp);
     this.x = constrain(this.x, 0, 1);
     this.y = constrain(this.y, 0, 1);
-
     this.updateOffsets();
   }
 
@@ -98,7 +86,7 @@ function moveParticles() {
 function updateParams() {
   for (let key in sliders) {
     target[key] = float(sliders[key].value());
-    current[key] = lerp(current[key], target[key], 0.1); // easing
+    current[key] = lerp(current[key], target[key], 0.1);
   }
   m = current.m;
   n = current.n;
@@ -135,12 +123,6 @@ function setup() {
 function draw() {
   wipeScreen();
   updateParams();
-  if (rotateEnabled) {
-    angle += 0.002;
-    translate(width / 2, height / 2);
-    rotate(angle);
-    translate(-width / 2, -height / 2);
-  }
   drawHeatmap();
   moveParticles();
 }

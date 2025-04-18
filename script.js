@@ -5,7 +5,7 @@ let A = 0.02;
 let minWalk = 0.002;
 
 const settings = {
-  nParticles : 50000,
+  nParticles : 70000,
   canvasSize : [600, 600],
   drawHeatmap : false
 }

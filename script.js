@@ -135,3 +135,4 @@ function keyPressed() {
     document.getElementById("sidebar").classList.toggle("hidden");
   }
 }
+

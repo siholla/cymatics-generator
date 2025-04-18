@@ -10,7 +10,7 @@ export default function App() {
 
   return (
     <>
-      <div style={{ position: 'absolute', top: 10, left: 10, zIndex: 10, color: 'white' }}>
+      <div style={{ position: 'absolute', top: 10, left: 10, zIndex: 10, color: 'black' }}>
         <label>n: <input type="range" min="1" max="40" step="0.1" value={n} onChange={(e) => setN(+e.target.value)} /></label><br />
         <label>m: <input type="range" min="1" max="40" step="0.1" value={m} onChange={(e) => setM(+e.target.value)} /></label><br />
         <label>v: <input type="range" min="0" max="1" step="0.01" value={v} onChange={(e) => setV(+e.target.value)} /></label><br />
@@ -48,7 +48,7 @@ function Cymatics({ n, m, v, pointSize }) {
 
   return (
     <points>
-      <bufferGeometry attach="geometry">
+      <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"
           count={positions.length}
@@ -56,7 +56,7 @@ function Cymatics({ n, m, v, pointSize }) {
           itemSize={3}
         />
       </bufferGeometry>
-      <pointsMaterial attach="material" color="white" size={pointSize} sizeAttenuation />
+      <pointsMaterial color="black" size={pointSize} sizeAttenuation />
     </points>
   )
 }

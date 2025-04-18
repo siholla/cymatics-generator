@@ -1,70 +1,84 @@
 
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+let particles = [];
+let sliders = {};
+let m, n, a, b, v;
 
-let densitySlider = document.getElementById("density");
-let dotColorPicker = document.getElementById("dotColor");
-let bgColorPicker = document.getElementById("bgColor");
-let rotateCheckbox = document.getElementById("rotate");
+let A = 0.02;
+let minWalk = 0.002;
 
-let width = window.innerWidth;
-let height = window.innerHeight;
-canvas.width = width;
-canvas.height = height;
+const settings = {
+  nParticles: 20000,
+  canvasSize: [600, 600],
+  drawHeatmap: false
+};
 
-let angle = 0;
+const pi = Math.PI;
 
-function generatePattern(density, dotColor, bgColor, rotate) {
-    ctx.fillStyle = bgColor;
-    ctx.fillRect(0, 0, width, height);
+const chladni = (x, y, a, b, m, n) =>
+  a * Math.sin(pi * n * x) * Math.sin(pi * m * y) + b * Math.sin(pi * m * x) * Math.sin(pi * n * y);
 
-    ctx.save();
-    if (rotate) {
-        ctx.translate(width / 2, height / 2);
-        ctx.rotate(angle);
-        ctx.translate(-width / 2, -height / 2);
-        angle += 0.002;
-    }
+function setup() {
+  let canvas = createCanvas(...settings.canvasSize);
+  canvas.parent('sketch-container');
+  pixelDensity(1);
+  background(0);
 
-    let cols = density;
-    let rows = density;
-    let spacingX = width / cols;
-    let spacingY = height / rows;
+  sliders = {
+    m: select('#mSlider'),
+    n: select('#nSlider'),
+    a: select('#aSlider'),
+    b: select('#bSlider'),
+    v: select('#vSlider'),
+    num: select('#numSlider'),
+  };
 
-    for (let i = 0; i < cols; i++) {
-        for (let j = 0; j < rows; j++) {
-            let x = i * spacingX;
-            let y = j * spacingY;
+  sliders.num.input(() => {
+    settings.nParticles = parseInt(sliders.num.value());
+    setupParticles(); // reinitialize particles
+  });
 
-            // Chladni-style wave interference function
-            let value = Math.sin(i * Math.PI / cols * 10) * Math.sin(j * Math.PI / rows * 5);
-            if (Math.abs(value) > 0.8) {
-                ctx.fillStyle = dotColor;
-                ctx.beginPath();
-                ctx.arc(x, y, 1.2, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-    }
-
-    ctx.restore();
+  setupParticles();
 }
 
-function animate() {
-    let density = parseInt(densitySlider.value);
-    let dotColor = dotColorPicker.value;
-    let bgColor = bgColorPicker.value;
-    let rotate = rotateCheckbox.checked;
-
-    generatePattern(density, dotColor, bgColor, rotate);
-    requestAnimationFrame(animate);
+function setupParticles() {
+  particles = [];
+  for (let i = 0; i < settings.nParticles; i++) {
+    particles.push(new Particle());
+  }
 }
 
-window.addEventListener("resize", () => {
-    width = window.innerWidth;
-    height = window.innerHeight;
-    canvas.width = width;
-    canvas.height = height;
-});
+function draw() {
+  m = float(sliders.m.value());
+  n = float(sliders.n.value());
+  a = float(sliders.a.value());
+  b = float(sliders.b.value());
+  v = float(sliders.v.value());
 
-animate();
+  noStroke();
+  fill(255);
+  for (let p of particles) {
+    p.move();
+    p.show();
+  }
+}
+
+class Particle {
+  constructor() {
+    this.x = random();
+    this.y = random();
+  }
+
+  move() {
+    let eq = chladni(this.x, this.y, a, b, m, n);
+    this.x += random(-v, v) * eq;
+    this.y += random(-v, v) * eq;
+    this.x = constrain(this.x, 0, 1);
+    this.y = constrain(this.y, 0, 1);
+  }
+
+  show() {
+    let px = this.x * width;
+    let py = this.y * height;
+    rect(px, py, 1, 1);
+  }
+}

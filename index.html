@@ -2,121 +2,117 @@
 <html lang="en-US">
 <head>
   <title>Cymatics Simulator - Chladni</title>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" href="chladni_plate.png" type="image/x-icon" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:400,600">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="icon" href="chladni_plate.png" type="image/x-icon">
   <style>
     html, body {
-      height: 100%;
-      width: 100%;
       margin: 0;
-      font-family: "Lato", sans-serif;
-      background: #191919;
-      color: white;
-      font-size: 14px;
+      padding: 0;
       overflow: hidden;
+      height: 100%;
+      background: #111;
+      font-family: 'Inter', sans-serif;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+      display: block;
     }
 
     header {
       position: fixed;
       top: 0;
       left: 0;
-      height: 100%;
+      height: 100vh;
       width: 280px;
-      background: rgba(0, 0, 0, 0.85);
+      background: rgba(30, 30, 30, 0.95);
+      color: #fff;
       padding: 20px;
-      border-radius: 0 20px 20px 0;
-      box-shadow: 2px 0 10px rgba(0,0,0,0.4);
-      transition: transform 0.3s ease;
+      box-sizing: border-box;
+      border-top-right-radius: 20px;
+      border-bottom-right-radius: 20px;
       z-index: 10;
-      overflow-y: auto;
+      transition: transform 0.3s ease;
+      transform: translateX(0);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
     }
 
     header.hidden {
-      transform: translateX(-110%);
+      transform: translateX(-100%);
     }
 
     h1 {
       font-size: 18px;
-      margin-top: 0;
       font-weight: 600;
-    }
-
-    #settings {
-      display: flex;
-      flex-direction: column;
+      margin-bottom: 6px;
     }
 
     label {
+      font-size: 12px;
       margin-top: 10px;
-      font-size: 13px;
+      display: block;
     }
 
     input[type=range] {
       width: 100%;
-      margin-bottom: 10px;
-      accent-color: #2980b9;
     }
 
     input[type=color] {
-      width: 100%;
+      width: 40px;
       height: 40px;
+      padding: 0;
       border: none;
-      border-radius: 8px;
-      margin-bottom: 12px;
       background: none;
+      margin-top: 5px;
+      border-radius: 50%;
+      cursor: pointer;
     }
 
-    canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      display: block;
-      z-index: 1;
+    fieldset {
+      border: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .color-pickers {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .color-pickers div {
+      text-align: center;
+      font-size: 12px;
     }
 
     footer {
-      position: fixed;
-      top: 0;
-      right: 0;
-      margin: 10px;
-      opacity: 0.7;
-      font-size: 18px;
+      position: absolute;
+      bottom: 10px;
+      right: 20px;
       z-index: 10;
+      opacity: 0.6;
     }
 
     footer:hover {
       opacity: 1;
     }
 
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    fieldset {
-      border: none;
-      margin: 10px 0;
-      padding: 0;
-    }
-
-    legend {
-      font-weight: bold;
-      margin-bottom: 8px;
-      font-size: 12px;
-      color: #ccc;
-    }
-
-    p {
-      margin-top: 8px;
-      line-height: 1.4;
+    #sketch-container {
+      z-index: 0;
     }
   </style>
 
+  <!-- Libraries (unchanged) -->
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/p5"></script>
@@ -125,49 +121,54 @@
 
 <body>
   <header id="ui">
-    <h1>Settings</h1>
-    <form id="settings">
-      <p>Simulating cymatic patterns on a Chladni plate.</p>
-      <p>Inspired by <a style="color:yellow;" href="https://www.youtube.com/watch?v=Q3oItpVa9fs" target="_blank">this video</a>.</p>
-      <p>Wave Equation:<br>
-         \[f(x) = a\sin(\pi nx) \sin(\pi my) + b\sin(\pi mx) \sin(\pi ny)\]
-      </p>
+    <h1>Chladni Controls</h1>
 
-      <fieldset>
-        <legend>Frequency Parameters:</legend>
-        <label for="mSlider">M</label>
-        <input type="range" id="mSlider" min="1" max="16" step="1" value="8" />
+    <fieldset>
+      <label for="mSlider">M</label>
+      <input type="range" id="mSlider" min="1" max="16" step="1" value="8">
 
-        <label for="nSlider">N</label>
-        <input type="range" id="nSlider" min="1" max="16" step="1" value="4" />
+      <label for="nSlider">N</label>
+      <input type="range" id="nSlider" min="1" max="16" step="1" value="4">
 
-        <label for="aSlider">A</label>
-        <input type="range" id="aSlider" min="-2" max="2" step="1" value="1" />
+      <label for="aSlider">A</label>
+      <input type="range" id="aSlider" min="-2" max="2" step="1" value="1">
 
-        <label for="bSlider">B</label>
-        <input type="range" id="bSlider" min="-2" max="2" step="1" value="1" />
-      </fieldset>
+      <label for="bSlider">B</label>
+      <input type="range" id="bSlider" min="-2" max="2" step="1" value="1">
+    </fieldset>
 
-      <label for="vSlider">Vibration Strength:</label>
-      <input type="range" id="vSlider" min="0.01" max="0.1" step="0.01" value="0.02" />
+    <label for="vSlider">Vibration Strength</label>
+    <input type="range" id="vSlider" min="0.01" max="0.1" step="0.01" value="0.02">
 
-      <label for="numSlider">Number of Particles:</label>
-      <input type="range" id="numSlider" min="2000" max="50000" step="1000" value="30000" />
+    <label for="numSlider">Number of Particles</label>
+    <input type="range" id="numSlider" min="2000" max="80000" step="1000" value="40000">
 
-      <label for="dotColor">Particle Color:</label>
-      <input type="color" id="dotColor" value="#ffffff" />
-
-      <label for="bgColor">Background Color:</label>
-      <input type="color" id="bgColor" value="#000000" />
-    </form>
+    <div class="color-pickers">
+      <div>
+        <label for="dotColor">Particle</label>
+        <input type="color" id="dotColor" value="#ffffff">
+      </div>
+      <div>
+        <label for="bgColor">Background</label>
+        <input type="color" id="bgColor" value="#000000">
+      </div>
+    </div>
   </header>
 
   <main id="sketch-container"></main>
 
   <footer>
     <a href="https://github.com/PettaBoy" target="_blank" title="Source on GitHub">
-      <i class="fa fa-github hover-opacity"></i>
+      <i class="fa fa-github" style="font-size: 20px;"></i>
     </a>
   </footer>
+
+  <script>
+    window.addEventListener('keydown', e => {
+      if (e.code === 'Space') {
+        document.getElementById('ui').classList.toggle('hidden');
+      }
+    });
+  </script>
 </body>
 </html>

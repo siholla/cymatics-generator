@@ -1,13 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cymatics Generator</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cymatics Simulator</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #000;
+      color: white;
+      font-family: sans-serif;
+    }
+    canvas {
+      display: block;
+    }
+    .ui {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0,0,0,0.7);
+      padding: 10px;
+      border-radius: 8px;
+    }
+    .ui label {
+      display: block;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="cymaticsCanvas"></canvas>
+
+  <div class="ui">
+    <label>
+      Dot Density:
+      <input type="range" id="densitySlider" min="5" max="100" value="40" />
+    </label>
+    <label>
+      Dot Color:
+      <input type="color" id="dotColor" value="#ffffff" />
+    </label>
+    <label>
+      Background:
+      <input type="color" id="bgColor" value="#000000" />
+    </label>
+    <label>
+      Rotate:
+      <input type="checkbox" id="rotateToggle" checked />
+    </label>
+  </div>
+
+  <script src="./script.js"></script>
+</body>
 </html>

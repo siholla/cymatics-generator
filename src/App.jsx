@@ -1,6 +1,7 @@
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
-import { useMemo, useState } from 'react'
+import * as THREE from 'three'
+import { useMemo, useState, useRef } from 'react'
 
 export default function App() {
   const [m, setM] = useState(9)
@@ -11,7 +12,7 @@ export default function App() {
 
   return (
     <>
-      <div style={{ position: 'absolute', top: 10, left: 10, zIndex: 1, color: 'black', background: 'white', padding: '10px', borderRadius: '8px' }}>
+      <div style={{ position: 'absolute', top: 10, left: 10, zIndex: 10, color: 'white', background: '#111', padding: '10px', borderRadius: '8px' }}>
         <label>m: <input type="range" min="1" max="40" step="1" value={m} onChange={(e) => setM(+e.target.value)} /></label><br />
         <label>n: <input type="range" min="1" max="40" step="1" value={n} onChange={(e) => setN(+e.target.value)} /></label><br />
         <label>a: <input type="range" min="0" max="5" step="0.1" value={a} onChange={(e) => setA(+e.target.value)} /></label><br />
@@ -19,18 +20,32 @@ export default function App() {
         <label>v: <input type="range" min="0" max="1" step="0.01" value={v} onChange={(e) => setV(+e.target.value)} /></label>
       </div>
 
-      <Canvas camera={{ position: [0, 0, 3.5] }}>
-        <CymaticPoints m={m} n={n} a={a} b={b} v={v} />
+      <Canvas
+        camera={{ position: [0, 0, 4], fov: 50 }}
+        style={{ background: '#0a0a0a', height: '100vh' }}
+      >
+        <ambientLight intensity={0.5} />
+        <Cymatics m={m} n={n} a={a} b={b} v={v} />
         <OrbitControls />
       </Canvas>
     </>
   )
 }
 
-function CymaticPoints({ m, n, a, b, v }) {
+function Cymatics({ m, n, a, b, v }) {
+  const ref = useRef()
+  const grid = 400
+  const scale = 3 / grid
+
+  // slight animation pulse
+  useFrame(({ clock }) => {
+    const t = clock.getElapsedTime()
+    if (ref.current) {
+      ref.current.material.opacity = 0.75 + 0.25 * Math.sin(t * 1.2)
+    }
+  })
+
   const positions = useMemo(() => {
-    const grid = 200 // more resolution
-    const scale = 3 / grid
     const pos = []
 
     for (let y = 0; y < grid; y++) {
@@ -53,7 +68,7 @@ function CymaticPoints({ m, n, a, b, v }) {
   }, [m, n, a, b, v])
 
   return (
-    <points>
+    <points ref={ref} rotation={[Math.PI / 8, Math.PI / 8, 0]}>
       <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"
@@ -62,7 +77,15 @@ function CymaticPoints({ m, n, a, b, v }) {
           itemSize={3}
         />
       </bufferGeometry>
-      <pointsMaterial size={0.06} color="black" sizeAttenuation />
+      <pointsMaterial
+        size={0.015}
+        color="#88ccff"
+        transparent
+        opacity={0.9}
+        blending={THREE.AdditiveBlending}
+        sizeAttenuation
+        depthWrite={false}
+      />
     </points>
   )
 }

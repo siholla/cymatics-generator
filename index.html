@@ -1,107 +1,129 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Cymatics Generator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap">
-  <script src="https://cdn.jsdelivr.net/npm/p5@1.4.2/lib/p5.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     html, body {
       margin: 0;
       padding: 0;
-      background: #000;
       overflow: hidden;
-      font-family: 'Inter', sans-serif;
+      height: 100%;
+      width: 100%;
+      background-color: black;
+      font-family: 'Montserrat', sans-serif;
     }
 
     #ui {
       position: fixed;
       top: 0;
       left: 0;
-      height: 100vh;
       width: 300px;
+      height: 100%;
       background-color: rgba(20, 20, 20, 0.95);
-      color: white;
       padding: 20px;
+      z-index: 10;
+      transition: transform 0.3s ease;
+      color: #ccc;
       display: flex;
       flex-direction: column;
       gap: 20px;
-      box-shadow: 2px 0 20px rgba(0,0,0,0.5);
-      transform: translateX(0);
-      transition: transform 0.4s ease;
-      z-index: 10;
     }
 
     #ui.hidden {
-      transform: translateX(-320px);
+      transform: translateX(-100%);
     }
 
-    .group {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+    h2 {
+      font-size: 12px;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+      color: #aaa;
     }
 
     label {
-      font-size: 12px;
-      opacity: 0.6;
+      font-size: 11px;
+      margin-bottom: 4px;
+      display: block;
+      color: #888;
     }
 
-    input[type=range] {
+    input[type="range"] {
       width: 100%;
     }
 
-    input[type=color] {
-      width: 40px;
-      height: 40px;
-      border: none;
-      border-radius: 50%;
-      background: none;
-      cursor: pointer;
+    .group {
+      margin-bottom: 15px;
+    }
+
+    .color-group {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .color-group label {
+      font-size: 10px;
+      text-align: center;
+    }
+
+    canvas {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .hint {
+      font-size: 10px;
+      text-align: center;
+      color: #555;
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
+  <script src="script.js"></script>
 </head>
 <body>
   <div id="ui">
+    <div class="hint">Hit <strong>space</strong> to hide navigation and re-open</div>
+
     <div class="group">
+      <h2>Frequency Parameters</h2>
       <label for="mSlider">M</label>
       <input type="range" id="mSlider" min="1" max="16" step="1" value="8">
-
       <label for="nSlider">N</label>
       <input type="range" id="nSlider" min="1" max="16" step="1" value="4">
-
       <label for="aSlider">A</label>
-      <input type="range" id="aSlider" min="-2" max="2" step="1" value="1">
-
+      <input type="range" id="aSlider" min="-2" max="2" step="0.1" value="1">
       <label for="bSlider">B</label>
-      <input type="range" id="bSlider" min="-2" max="2" step="1" value="1">
+      <input type="range" id="bSlider" min="-2" max="2" step="0.1" value="1">
     </div>
 
     <div class="group">
-      <label for="vSlider">Vibration Strength</label>
-      <input type="range" id="vSlider" min="0.01" max="0.1" step="0.01" value="0.02">
-
-      <label for="numSlider">Number of Particles</label>
-      <input type="range" id="numSlider" min="2000" max="100000" step="2000" value="40000">
+      <h2>Vibration Strength</h2>
+      <input type="range" id="vSlider" min="0.001" max="0.05" step="0.001" value="0.02">
     </div>
 
     <div class="group">
-      <label for="dotColor">Particle Color</label>
-      <input type="color" id="dotColor" value="#ffffff">
+      <h2>Number of Particles</h2>
+      <input type="range" id="numSlider" min="20000" max="120000" step="10000" value="90000">
+    </div>
 
-      <label for="bgColor">Background Color</label>
-      <input type="color" id="bgColor" value="#000000">
+    <div class="group color-group">
+      <div>
+        <label for="dotColor">Particle Color:</label>
+        <input type="color" id="dotColor" value="#ffffff">
+      </div>
+      <div>
+        <label for="bgColor">Background Color:</label>
+        <input type="color" id="bgColor" value="#000000">
+      </div>
     </div>
   </div>
-
-  <script src="script.js"></script>
-  <script>
-    document.addEventListener('keydown', (e) => {
-      if (e.code === 'Space') {
-        document.getElementById('ui').classList.toggle('hidden');
-      }
-    });
-  </script>
 </body>
 </html>

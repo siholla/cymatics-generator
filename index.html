@@ -1,119 +1,151 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-US">
 <head>
-  <meta charset="UTF-8" />
-  <title>Cymatics Generator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cymatics Simulator - Chladni</title>
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <link rel="icon" href="chladni_plate.png" type="image/x-icon">
   <style>
     html, body {
-      margin: 0;
-      padding: 0;
       height: 100%;
+      width: 100%;
+      margin: 0;
+      font-family: "Lato", sans-serif;
+      background: #191919;
+      color: white;
+      font-size: 14px;
       overflow: hidden;
-      font-family: 'Montserrat', sans-serif;
-      background: #000;
     }
 
-    canvas {
-      display: block;
-      position: absolute;
-      top: 0; left: 0;
-      z-index: 0;
-    }
-
-    #ui {
+    header {
       position: fixed;
       top: 0;
       left: 0;
-      width: 300px;
-      height: 100%;
-      background: rgba(20, 20, 20, 0.95);
-      color: #ccc;
-      padding: 20px;
-      transform: translateX(0);
-      transition: transform 0.3s ease;
+      background-color: rgba(0,0,0,0.5);
+      border-radius: 5px;
+      margin: 10px;
+      padding: 10px 15px;
       z-index: 10;
+      transition: transform 0.3s ease;
+      transform: translateX(0);
+    }
+
+    header.hidden {
+      transform: translateX(-110%);
+    }
+
+    #settings {
       display: flex;
       flex-direction: column;
-      gap: 10px;
-    }
-
-    #ui.hidden {
-      transform: translateX(-100%);
-    }
-
-    h2 {
-      font-size: 12px;
-      text-transform: uppercase;
-      margin: 10px 0 5px;
-      color: #aaa;
     }
 
     label {
-      font-size: 12px;
-      margin-top: 5px;
+      margin-top: 10px;
+    }
+
+    input[type=range] {
+      width: 15vw;
+      min-width: 200px;
+    }
+
+    input[type=color], button {
+      margin-top: 6px;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
       display: block;
+      z-index: 1;
     }
 
-    input[type="range"] {
-      width: 100%;
+    #toggleUI {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      padding: 6px 12px;
+      background: #333;
+      border: 1px solid #555;
+      color: white;
+      cursor: pointer;
+      border-radius: 5px;
+      font-family: inherit;
+      z-index: 11;
     }
 
-    .color-pickers {
-      display: flex;
-      justify-content: space-between;
+    footer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      margin: 10px;
+      opacity: 0.7;
+      font-size: 18px;
+      z-index: 10;
     }
 
-    .color-pickers label {
-      font-size: 11px;
-    }
-
-    .hint {
-      font-size: 10px;
-      color: #666;
-      text-align: center;
-      margin-bottom: 10px;
+    footer:hover {
+      opacity: 1;
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
- <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/p5"></script>
   <script src="./script.js" defer></script>
+</head>
+
 <body>
-  <div id="ui">
-    <div class="hint">Press <b>space</b> to toggle UI</div>
+  <button id="toggleUI">Toggle UI</button>
 
-    <h2>Frequency Parameters</h2>
-    <label for="mSlider">M</label>
-    <input id="mSlider" type="range" min="1" max="16" step="1" value="8" />
-    <label for="nSlider">N</label>
-    <input id="nSlider" type="range" min="1" max="16" step="1" value="4" />
-    <label for="aSlider">A</label>
-    <input id="aSlider" type="range" min="-2" max="2" step="0.1" value="1" />
-    <label for="bSlider">B</label>
-    <input id="bSlider" type="range" min="-2" max="2" step="0.1" value="1" />
+  <header id="ui">
+    <h1>Settings</h1>
+    <form id="settings">
+      <p>Simulating cymatic patterns on a Chladni plate.</p>
+      <p>Inspired by <a style="color:yellow;" href="https://www.youtube.com/watch?v=Q3oItpVa9fs" target="_blank">this video</a>.</p>
+      <p>Wave Equation:<br>
+         \[f(x) = a\sin(\pi nx) \sin(\pi my) + b\sin(\pi mx) \sin(\pi ny)\]
+      </p>
 
-    <h2>Vibration Strength</h2>
-    <input id="vSlider" type="range" min="0.001" max="0.05" step="0.001" value="0.02" />
+      <fieldset>
+        <legend>Frequency parameters:</legend>
+        <label for="mSlider">m</label>
+        <input type="range" id="mSlider" min="1" max="16" step="1" value="8">
 
-    <h2>Number of Particles</h2>
-    <input id="numSlider" type="range" min="10000" max="120000" step="5000" value="90000" />
+        <label for="nSlider">n</label>
+        <input type="range" id="nSlider" min="1" max="16" step="1" value="4">
 
-    <div class="color-pickers">
-      <div>
-        <label for="dotColor">Particle</label>
-        <input id="dotColor" type="color" value="#ffffff" />
-      </div>
-      <div>
-        <label for="bgColor">Background</label>
-        <input id="bgColor" type="color" value="#000000" />
-      </div>
-    </div>
-  </div>
+        <label for="aSlider">a</label>
+        <input type="range" id="aSlider" min="-2" max="2" step="1" value="1">
+
+        <label for="bSlider">b</label>
+        <input type="range" id="bSlider" min="-2" max="2" step="1" value="1">
+      </fieldset>
+
+      <label for="vSlider">Vibration Strength:</label>
+      <input type="range" id="vSlider" min="0.01" max="0.1" step="0.01" value="0.02">
+
+      <label for="numSlider">Number of Particles:</label>
+      <input type="range" id="numSlider" min="2000" max="50000" step="1000" value="30000">
+
+      <label for="dotColor">Dot Color:</label>
+      <input type="color" id="dotColor" value="#ffffff">
+
+      <label for="bgColor">Background Color:</label>
+      <input type="color" id="bgColor" value="#000000">
+    </form>
+  </header>
+
+  <main id="sketch-container"></main>
+
+  <footer>
+    <a href="https://github.com/PettaBoy" target="_blank" title="Source on GitHub">
+      <i class="fa fa-github hover-opacity"></i>
+    </a>
+  </footer>
 </body>
 </html>

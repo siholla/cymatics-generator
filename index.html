@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cymatics Generator</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: black; }
+        #controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            z-index: 10;
+            font-family: sans-serif;
+        }
+        label { display: block; margin-top: 8px; }
+        input[type=range] { width: 150px; }
+        input[type=color] { margin-left: 10px; }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <label>
+            Dot Density:
+            <input type="range" id="density" min="10" max="400" value="200">
+        </label>
+        <label>
+            Dot Color:
+            <input type="color" id="dotColor" value="#ffffff">
+        </label>
+        <label>
+            Background:
+            <input type="color" id="bgColor" value="#000000">
+        </label>
+        <label>
+            Rotate:
+            <input type="checkbox" id="rotate" checked>
+        </label>
+    </div>
+    <canvas id="canvas"></canvas>
+    <script src="script.js"></script>
+</body>
+</html>

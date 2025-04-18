@@ -6,18 +6,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
     html, body {
       margin: 0;
       padding: 0;
-      overflow: hidden;
       height: 100%;
-      width: 100%;
-      background-color: black;
+      overflow: hidden;
       font-family: 'Montserrat', sans-serif;
+      background: #000;
+    }
+
+    canvas {
+      display: block;
+      position: absolute;
+      top: 0; left: 0;
+      z-index: 0;
     }
 
     #ui {
@@ -26,14 +28,15 @@
       left: 0;
       width: 300px;
       height: 100%;
-      background-color: rgba(20, 20, 20, 0.95);
-      padding: 20px;
-      z-index: 10;
-      transition: transform 0.3s ease;
+      background: rgba(20, 20, 20, 0.95);
       color: #ccc;
+      padding: 20px;
+      transform: translateX(0);
+      transition: transform 0.3s ease;
+      z-index: 10;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 10px;
     }
 
     #ui.hidden {
@@ -42,86 +45,68 @@
 
     h2 {
       font-size: 12px;
-      letter-spacing: 1px;
-      margin-bottom: 10px;
+      text-transform: uppercase;
+      margin: 10px 0 5px;
       color: #aaa;
     }
 
     label {
-      font-size: 11px;
-      margin-bottom: 4px;
+      font-size: 12px;
+      margin-top: 5px;
       display: block;
-      color: #888;
     }
 
     input[type="range"] {
       width: 100%;
     }
 
-    .group {
-      margin-bottom: 15px;
-    }
-
-    .color-group {
+    .color-pickers {
       display: flex;
       justify-content: space-between;
     }
 
-    .color-group label {
-      font-size: 10px;
-      text-align: center;
-    }
-
-    canvas {
-      display: block;
-      position: absolute;
-      top: 0;
-      left: 0;
+    .color-pickers label {
+      font-size: 11px;
     }
 
     .hint {
       font-size: 10px;
+      color: #666;
       text-align: center;
-      color: #555;
+      margin-bottom: 10px;
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
-  <script src="script.js"></script>
+  <script src="script.js" defer></script>
 </head>
 <body>
   <div id="ui">
-    <div class="hint">Hit <strong>space</strong> to hide navigation and re-open</div>
+    <div class="hint">Press <b>space</b> to toggle UI</div>
 
-    <div class="group">
-      <h2>Frequency Parameters</h2>
-      <label for="mSlider">M</label>
-      <input type="range" id="mSlider" min="1" max="16" step="1" value="8">
-      <label for="nSlider">N</label>
-      <input type="range" id="nSlider" min="1" max="16" step="1" value="4">
-      <label for="aSlider">A</label>
-      <input type="range" id="aSlider" min="-2" max="2" step="0.1" value="1">
-      <label for="bSlider">B</label>
-      <input type="range" id="bSlider" min="-2" max="2" step="0.1" value="1">
-    </div>
+    <h2>Frequency Parameters</h2>
+    <label for="mSlider">M</label>
+    <input id="mSlider" type="range" min="1" max="16" step="1" value="8" />
+    <label for="nSlider">N</label>
+    <input id="nSlider" type="range" min="1" max="16" step="1" value="4" />
+    <label for="aSlider">A</label>
+    <input id="aSlider" type="range" min="-2" max="2" step="0.1" value="1" />
+    <label for="bSlider">B</label>
+    <input id="bSlider" type="range" min="-2" max="2" step="0.1" value="1" />
 
-    <div class="group">
-      <h2>Vibration Strength</h2>
-      <input type="range" id="vSlider" min="0.001" max="0.05" step="0.001" value="0.02">
-    </div>
+    <h2>Vibration Strength</h2>
+    <input id="vSlider" type="range" min="0.001" max="0.05" step="0.001" value="0.02" />
 
-    <div class="group">
-      <h2>Number of Particles</h2>
-      <input type="range" id="numSlider" min="20000" max="120000" step="10000" value="90000">
-    </div>
+    <h2>Number of Particles</h2>
+    <input id="numSlider" type="range" min="10000" max="120000" step="5000" value="90000" />
 
-    <div class="group color-group">
+    <div class="color-pickers">
       <div>
-        <label for="dotColor">Particle Color:</label>
-        <input type="color" id="dotColor" value="#ffffff">
+        <label for="dotColor">Particle</label>
+        <input id="dotColor" type="color" value="#ffffff" />
       </div>
       <div>
-        <label for="bgColor">Background Color:</label>
-        <input type="color" id="bgColor" value="#000000">
+        <label for="bgColor">Background</label>
+        <input id="bgColor" type="color" value="#000000" />
       </div>
     </div>
   </div>

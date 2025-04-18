@@ -29,8 +29,8 @@ export default function App() {
 
 function CymaticPoints({ m, n, a, b, v }) {
   const positions = useMemo(() => {
-    const grid = 100
-    const scale = 2 / grid
+    const grid = 200 // more resolution
+    const scale = 3 / grid
     const pos = []
 
     for (let y = 0; y < grid; y++) {
@@ -62,7 +62,7 @@ function CymaticPoints({ m, n, a, b, v }) {
           itemSize={3}
         />
       </bufferGeometry>
-      <pointsMaterial size={0.03} color="black" />
+      <pointsMaterial size={0.06} color="black" sizeAttenuation />
     </points>
   )
 }

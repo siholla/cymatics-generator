@@ -1,9 +1,10 @@
 let particles = [], sliders = {}, m, n, a, b, v, N;
 let current = {}, target = {};
 let dotColorPicker, bgColorPicker;
+let showUI = true;
 
 const settings = {
-  nParticles: 100000,
+  nParticles: 150000, // increased base density
   drawHeatmap: false
 };
 
@@ -29,15 +30,18 @@ function DOMinit() {
   dotColorPicker = select('#dotColor');
   bgColorPicker = select('#bgColor');
 
-  select('#toggleUI').mousePressed(() => {
-    const panel = document.querySelector('header');
-    panel.classList.toggle('hidden');
-  });
-
   for (let key in sliders) {
     current[key] = float(sliders[key].value());
     target[key] = float(sliders[key].value());
   }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space') {
+      showUI = !showUI;
+      const panel = document.querySelector('header');
+      panel.classList.toggle('hidden', !showUI);
+    }
+  });
 }
 
 function setupParticles() {
@@ -58,8 +62,10 @@ class Particle {
     let eq = chladni(this.x, this.y, a, b, m, n);
     let amp = v * abs(eq);
     if (amp <= 0.002) amp = 0.002;
-    this.x += random(-amp, amp);
-    this.y += random(-amp, amp);
+
+    // Slight jitter for more organic look
+    this.x += random(-amp, amp) + random(-0.002, 0.002);
+    this.y += random(-amp, amp) + random(-0.002, 0.002);
     this.x = constrain(this.x, 0, 1);
     this.y = constrain(this.y, 0, 1);
     this.updateOffsets();

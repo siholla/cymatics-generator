@@ -1,51 +1,48 @@
-let particles = [], sliders = {}, m, n, a, b, v, N;
-let current = {}, target = {};
-let dotColorPicker, bgColorPicker;
+let particles, sliders, m, n, a, b, v, N;
+
+// Vibration strength parameters
+let A = 0.02;
+let minWalk = 0.002;
 
 const settings = {
-  nParticles: 100000,
+  nParticles: 90000, // Increased base density
+  canvasSize: [window.innerWidth, window.innerHeight],
   drawHeatmap: false
 };
 
-const pi = Math.PI;
+const pi = 3.1415926535;
 
+// Chladni 2D closed-form solution
 const chladni = (x, y, a, b, m, n) =>
   a * sin(pi * n * x) * sin(pi * m * y) + b * sin(pi * m * x) * sin(pi * n * y);
 
-function DOMinit() {
-  let canvas = createCanvas(window.innerWidth, window.innerHeight);
-  canvas.parent('sketch-container');
-  pixelDensity(1);
+/* Initialization */
 
+const DOMinit = () => {
+  let canvas = createCanvas(...settings.canvasSize);
+  canvas.parent("sketch-container");
+
+  // Sliders
   sliders = {
-    m: select('#mSlider'),
-    n: select('#nSlider'),
-    a: select('#aSlider'),
-    b: select('#bSlider'),
-    v: select('#vSlider'),
-    num: select('#numSlider')
+    m: select("#mSlider"),
+    n: select("#nSlider"),
+    a: select("#aSlider"),
+    b: select("#bSlider"),
+    v: select("#vSlider"),
+    num: select("#numSlider"),
+    dotColor: select("#dotColor"),
+    bgColor: select("#bgColor"),
   };
+};
 
-  dotColorPicker = select('#dotColor');
-  bgColorPicker = select('#bgColor');
-
-  select('#toggleUI').mousePressed(() => {
-    const panel = document.querySelector('header');
-    panel.classList.toggle('hidden');
-  });
-
-  for (let key in sliders) {
-    current[key] = float(sliders[key].value());
-    target[key] = float(sliders[key].value());
-  }
-}
-
-function setupParticles() {
+const setupParticles = () => {
   particles = [];
   for (let i = 0; i < settings.nParticles; i++) {
     particles[i] = new Particle();
   }
-}
+};
+
+/* Particle dynamics */
 
 class Particle {
   constructor() {
@@ -56,16 +53,22 @@ class Particle {
 
   move() {
     let eq = chladni(this.x, this.y, a, b, m, n);
-    let amp = v * abs(eq);
-    if (amp <= 0.002) amp = 0.002;
-    this.x += random(-amp, amp);
-    this.y += random(-amp, amp);
-    this.x = constrain(this.x, 0, 1);
-    this.y = constrain(this.y, 0, 1);
+    this.stochasticAmplitude = v * abs(eq);
+    if (this.stochasticAmplitude <= minWalk) this.stochasticAmplitude = minWalk;
+
+    this.x += random(-this.stochasticAmplitude, this.stochasticAmplitude);
+    this.y += random(-this.stochasticAmplitude, this.stochasticAmplitude);
+
+    // Add slight random jitter to break perfect patterns
+    this.x += random(-0.0015, 0.0015);
+    this.y += random(-0.0015, 0.0015);
+
     this.updateOffsets();
   }
 
   updateOffsets() {
+    this.x = constrain(this.x, 0, 1);
+    this.y = constrain(this.y, 0, 1);
     this.xOff = width * this.x;
     this.yOff = height * this.y;
   }
@@ -75,28 +78,27 @@ class Particle {
   }
 }
 
-function moveParticles() {
+const moveParticles = () => {
   let movingParticles = particles.slice(0, N);
-  for (let p of movingParticles) {
-    p.move();
-    p.show();
+  for (let particle of movingParticles) {
+    particle.move();
+    particle.show();
   }
-}
+};
 
-function updateParams() {
-  for (let key in sliders) {
-    target[key] = float(sliders[key].value());
-    current[key] = lerp(current[key], target[key], 0.1);
-  }
-  m = current.m;
-  n = current.n;
-  a = current.a;
-  b = current.b;
-  v = current.v;
-  N = current.num;
-}
+const updateParams = () => {
+  m = sliders.m.value();
+  n = sliders.n.value();
+  a = sliders.a.value();
+  b = sliders.b.value();
+  v = sliders.v.value();
+  N = sliders.num.value();
 
-function drawHeatmap() {
+  stroke(sliders.dotColor.value());
+  background(sliders.bgColor.value());
+};
+
+const drawHeatmap = () => {
   if (settings.drawHeatmap) {
     let res = 3;
     for (let i = 0; i <= width; i += res) {
@@ -108,12 +110,12 @@ function drawHeatmap() {
       }
     }
   }
-}
+};
 
-function wipeScreen() {
-  background(bgColorPicker.value());
-  stroke(dotColorPicker.value());
-}
+const wipeScreen = () => {
+  background(sliders.bgColor.value());
+  stroke(sliders.dotColor.value());
+};
 
 function setup() {
   DOMinit();
@@ -127,7 +129,9 @@ function draw() {
   moveParticles();
 }
 
-window.addEventListener('resize', () => {
-  resizeCanvas(window.innerWidth, window.innerHeight);
-  wipeScreen();
-});
+// Spacebar toggle for UI
+function keyPressed() {
+  if (key === ' ') {
+    document.getElementById("sidebar").classList.toggle("hidden");
+  }
+}

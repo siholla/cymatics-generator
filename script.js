@@ -1,138 +1,99 @@
-let particles, sliders, m, n, a, b, v, N;
-
-// Vibration strength parameters
+let sliders = {};
+let particles = [];
 let A = 0.02;
 let minWalk = 0.002;
+let jitterStrength = 0.003;
+let showUI = true;
 
-const settings = {
-  nParticles: 90000, // Increased base density
+let settings = {
+  nParticles: 90000,
   canvasSize: [window.innerWidth, window.innerHeight],
-  drawHeatmap: false
+  bg: [0, 0, 0],
+  dot: [255, 255, 255]
 };
 
-const pi = 3.1415926535;
-
-// Chladni 2D closed-form solution
-const chladni = (x, y, a, b, m, n) =>
-  a * sin(pi * n * x) * sin(pi * m * y) + b * sin(pi * m * x) * sin(pi * n * y);
-
-/* Initialization */
-
-const DOMinit = () => {
-  let canvas = createCanvas(...settings.canvasSize);
-  canvas.parent("sketch-container");
-
-  // Sliders
-  sliders = {
-    m: select("#mSlider"),
-    n: select("#nSlider"),
-    a: select("#aSlider"),
-    b: select("#bSlider"),
-    v: select("#vSlider"),
-    num: select("#numSlider"),
-    dotColor: select("#dotColor"),
-    bgColor: select("#bgColor"),
-  };
-};
-
-const setupParticles = () => {
-  particles = [];
-  for (let i = 0; i < settings.nParticles; i++) {
-    particles[i] = new Particle();
-  }
-};
-
-/* Particle dynamics */
+function chladni(x, y, a, b, m, n) {
+  const pi = Math.PI;
+  return a * sin(pi * n * x) * sin(pi * m * y) + b * sin(pi * m * x) * sin(pi * n * y);
+}
 
 class Particle {
   constructor() {
     this.x = random(0, 1);
     this.y = random(0, 1);
-    this.updateOffsets();
   }
 
-  move() {
+  move(a, b, m, n, v) {
     let eq = chladni(this.x, this.y, a, b, m, n);
-    this.stochasticAmplitude = v * abs(eq);
-    if (this.stochasticAmplitude <= minWalk) this.stochasticAmplitude = minWalk;
+    let amp = v * abs(eq);
+    if (amp < minWalk) amp = minWalk;
 
-    this.x += random(-this.stochasticAmplitude, this.stochasticAmplitude);
-    this.y += random(-this.stochasticAmplitude, this.stochasticAmplitude);
+    this.x += random(-amp, amp) + random(-jitterStrength, jitterStrength);
+    this.y += random(-amp, amp) + random(-jitterStrength, jitterStrength);
 
-    // Add slight random jitter to break perfect patterns
-    this.x += random(-0.0015, 0.0015);
-    this.y += random(-0.0015, 0.0015);
-
-    this.updateOffsets();
-  }
-
-  updateOffsets() {
     this.x = constrain(this.x, 0, 1);
     this.y = constrain(this.y, 0, 1);
-    this.xOff = width * this.x;
-    this.yOff = height * this.y;
   }
 
-  show() {
-    point(this.xOff, this.yOff);
+  draw() {
+    point(this.x * width, this.y * height);
   }
 }
 
-const moveParticles = () => {
-  let movingParticles = particles.slice(0, N);
-  for (let particle of movingParticles) {
-    particle.move();
-    particle.show();
-  }
-};
-
-const updateParams = () => {
-  m = sliders.m.value();
-  n = sliders.n.value();
-  a = sliders.a.value();
-  b = sliders.b.value();
-  v = sliders.v.value();
-  N = sliders.num.value();
-
-  stroke(sliders.dotColor.value());
-  background(sliders.bgColor.value());
-};
-
-const drawHeatmap = () => {
-  if (settings.drawHeatmap) {
-    let res = 3;
-    for (let i = 0; i <= width; i += res) {
-      for (let j = 0; j <= height; j += res) {
-        let eq = chladni(i / width, j / height, a, b, m, n);
-        noStroke();
-        fill((eq + 1) * 127.5);
-        square(i, j, res);
-      }
-    }
-  }
-};
-
-const wipeScreen = () => {
-  background(sliders.bgColor.value());
-  stroke(sliders.dotColor.value());
-};
-
 function setup() {
-  DOMinit();
-  setupParticles();
+  createCanvas(window.innerWidth, window.innerHeight);
+  initSliders();
+  for (let i = 0; i < settings.nParticles; i++) {
+    particles.push(new Particle());
+  }
 }
 
 function draw() {
-  wipeScreen();
-  updateParams();
-  drawHeatmap();
-  moveParticles();
-}
+  background(settings.bg);
+  stroke(settings.dot);
+  strokeWeight(1);
+  noFill();
 
-// Spacebar toggle for UI
-function keyPressed() {
-  if (key === ' ') {
-    document.getElementById("sidebar").classList.toggle("hidden");
+  let m = sliders.m.value();
+  let n = sliders.n.value();
+  let a = sliders.a.value();
+  let b = sliders.b.value();
+  let v = sliders.v.value();
+  let N = sliders.num.value();
+
+  for (let i = 0; i < N; i++) {
+    particles[i].move(a, b, m, n, v);
+    particles[i].draw();
   }
 }
 
+function initSliders() {
+  sliders = {
+    m: select('#mSlider'),
+    n: select('#nSlider'),
+    a: select('#aSlider'),
+    b: select('#bSlider'),
+    v: select('#vSlider'),
+    num: select('#numSlider')
+  };
+
+  select('#dotColor').input(() => {
+    settings.dot = hexToRgb(select('#dotColor').value());
+  });
+
+  select('#bgColor').input(() => {
+    settings.bg = hexToRgb(select('#bgColor').value());
+  });
+}
+
+function hexToRgb(hex) {
+  let bigint = parseInt(hex.slice(1), 16);
+  return [bigint >> 16 & 255, bigint >> 8 & 255, bigint & 255];
+}
+
+function keyPressed() {
+  if (key === ' ') {
+    showUI = !showUI;
+    document.getElementById('ui').classList.toggle('hidden', !showUI);
+  }
+}

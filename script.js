@@ -1,73 +1,22 @@
-let sliders = {};
-let particles = [];
-let A = 0.02;
-let minWalk = 0.002;
-let jitterStrength = 0.003;
-let showUI = true;
+let particles = [], sliders = {}, m, n, a, b, v, N;
+let current = {}, target = {};
+let dotColorPicker, bgColorPicker;
 
-let settings = {
-  nParticles: 90000,
-  canvasSize: [window.innerWidth, window.innerHeight],
-  bg: [0, 0, 0],
-  dot: [255, 255, 255]
+const settings = {
+  nParticles: 100000,
+  drawHeatmap: false
 };
 
-function chladni(x, y, a, b, m, n) {
-  const pi = Math.PI;
-  return a * sin(pi * n * x) * sin(pi * m * y) + b * sin(pi * m * x) * sin(pi * n * y);
-}
+const pi = Math.PI;
 
-class Particle {
-  constructor() {
-    this.x = random(0, 1);
-    this.y = random(0, 1);
-  }
+const chladni = (x, y, a, b, m, n) =>
+  a * sin(pi * n * x) * sin(pi * m * y) + b * sin(pi * m * x) * sin(pi * n * y);
 
-  move(a, b, m, n, v) {
-    let eq = chladni(this.x, this.y, a, b, m, n);
-    let amp = v * abs(eq);
-    if (amp < minWalk) amp = minWalk;
+function DOMinit() {
+  let canvas = createCanvas(window.innerWidth, window.innerHeight);
+  canvas.parent('sketch-container');
+  pixelDensity(1);
 
-    this.x += random(-amp, amp) + random(-jitterStrength, jitterStrength);
-    this.y += random(-amp, amp) + random(-jitterStrength, jitterStrength);
-
-    this.x = constrain(this.x, 0, 1);
-    this.y = constrain(this.y, 0, 1);
-  }
-
-  draw() {
-    point(this.x * width, this.y * height);
-  }
-}
-
-function setup() {
-  createCanvas(window.innerWidth, window.innerHeight);
-  initSliders();
-  for (let i = 0; i < settings.nParticles; i++) {
-    particles.push(new Particle());
-  }
-}
-
-function draw() {
-  background(settings.bg);
-  stroke(settings.dot);
-  strokeWeight(1);
-  noFill();
-
-  let m = sliders.m.value();
-  let n = sliders.n.value();
-  let a = sliders.a.value();
-  let b = sliders.b.value();
-  let v = sliders.v.value();
-  let N = sliders.num.value();
-
-  for (let i = 0; i < N; i++) {
-    particles[i].move(a, b, m, n, v);
-    particles[i].draw();
-  }
-}
-
-function initSliders() {
   sliders = {
     m: select('#mSlider'),
     n: select('#nSlider'),
@@ -77,23 +26,108 @@ function initSliders() {
     num: select('#numSlider')
   };
 
-  select('#dotColor').input(() => {
-    settings.dot = hexToRgb(select('#dotColor').value());
+  dotColorPicker = select('#dotColor');
+  bgColorPicker = select('#bgColor');
+
+  select('#toggleUI').mousePressed(() => {
+    const panel = document.querySelector('header');
+    panel.classList.toggle('hidden');
   });
 
-  select('#bgColor').input(() => {
-    settings.bg = hexToRgb(select('#bgColor').value());
-  });
-}
-
-function hexToRgb(hex) {
-  let bigint = parseInt(hex.slice(1), 16);
-  return [bigint >> 16 & 255, bigint >> 8 & 255, bigint & 255];
-}
-
-function keyPressed() {
-  if (key === ' ') {
-    showUI = !showUI;
-    document.getElementById('ui').classList.toggle('hidden', !showUI);
+  for (let key in sliders) {
+    current[key] = float(sliders[key].value());
+    target[key] = float(sliders[key].value());
   }
 }
+
+function setupParticles() {
+  particles = [];
+  for (let i = 0; i < settings.nParticles; i++) {
+    particles[i] = new Particle();
+  }
+}
+
+class Particle {
+  constructor() {
+    this.x = random(0, 1);
+    this.y = random(0, 1);
+    this.updateOffsets();
+  }
+
+  move() {
+    let eq = chladni(this.x, this.y, a, b, m, n);
+    let amp = v * abs(eq);
+    if (amp <= 0.002) amp = 0.002;
+    this.x += random(-amp, amp);
+    this.y += random(-amp, amp);
+    this.x = constrain(this.x, 0, 1);
+    this.y = constrain(this.y, 0, 1);
+    this.updateOffsets();
+  }
+
+  updateOffsets() {
+    this.xOff = width * this.x;
+    this.yOff = height * this.y;
+  }
+
+  show() {
+    point(this.xOff, this.yOff);
+  }
+}
+
+function moveParticles() {
+  let movingParticles = particles.slice(0, N);
+  for (let p of movingParticles) {
+    p.move();
+    p.show();
+  }
+}
+
+function updateParams() {
+  for (let key in sliders) {
+    target[key] = float(sliders[key].value());
+    current[key] = lerp(current[key], target[key], 0.1);
+  }
+  m = current.m;
+  n = current.n;
+  a = current.a;
+  b = current.b;
+  v = current.v;
+  N = current.num;
+}
+
+function drawHeatmap() {
+  if (settings.drawHeatmap) {
+    let res = 3;
+    for (let i = 0; i <= width; i += res) {
+      for (let j = 0; j <= height; j += res) {
+        let eq = chladni(i / width, j / height, a, b, m, n);
+        noStroke();
+        fill((eq + 1) * 127.5);
+        square(i, j, res);
+      }
+    }
+  }
+}
+
+function wipeScreen() {
+  background(bgColorPicker.value());
+  stroke(dotColorPicker.value());
+}
+
+function setup() {
+  DOMinit();
+  setupParticles();
+}
+
+function draw() {
+  wipeScreen();
+  updateParams();
+  drawHeatmap();
+  moveParticles();
+}
+
+window.addEventListener('resize', () => {
+  resizeCanvas(window.innerWidth, window.innerHeight);
+  wipeScreen();
+});

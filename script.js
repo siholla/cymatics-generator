@@ -1,12 +1,7 @@
 let particles = [], sliders = {}, m, n, a, b, v, N, zoom, dotSize, jitterAmount;
-let current = {}, target = {};
+let target = {};
 let dotColorPicker, bgColorPicker;
 let showUI = true;
-
-let capturer;
-let isRecording = false;
-let recordingFrame = 0;
-const maxRecordingFrames = 60 * 5; // 5 seconds at 60fps
 
 const settings = {
   nParticles: 150000,
@@ -39,22 +34,24 @@ function DOMinit() {
   bgColorPicker = select('#bgColor');
 
   for (let key in sliders) {
-    current[key] = float(sliders[key].value());
-    target[key] = float(sliders[key].value());
+    target[key] = parseFloat(sliders[key].value());
+  }
+
+  for (let key in sliders) {
+    sliders[key].input(() => {
+      const newVal = parseFloat(sliders[key].value());
+      let tween = {};
+      tween[key] = newVal;
+      gsap.to(target, {
+        duration: 0.25,
+        ease: CustomEase.create("custom", "0.60,0.03,0.41,0.95"),
+        ...tween
+      });
+    });
   }
 
   select('#saveBtn').mousePressed(() => {
     saveCanvas('cymatic-pattern', 'png');
-  });
-
-  select('#saveVideoBtn').mousePressed(() => {
-    if (!isRecording) {
-      capturer = new CCapture({ format: 'webm', framerate: 60 });
-      recordingFrame = 0;
-      isRecording = true;
-      capturer.start();
-      console.log('Recording started');
-    }
   });
 
   document.addEventListener('keydown', (e) => {
@@ -112,19 +109,15 @@ function moveParticles() {
 }
 
 function updateParams() {
-  for (let key in sliders) {
-    target[key] = float(sliders[key].value());
-    current[key] = cubicLerp(current[key], target[key], 0.075);
-  }
-  m = current.m;
-  n = current.n;
-  a = current.a;
-  b = current.b;
-  v = current.v;
-  N = current.num;
-  zoom = current.zoom;
-  dotSize = current.dot;
-  jitterAmount = current.jitter;
+  m = target.m;
+  n = target.n;
+  a = target.a;
+  b = target.b;
+  v = target.v;
+  N = target.num;
+  zoom = target.zoom;
+  dotSize = target.dot;
+  jitterAmount = target.jitter;
 }
 
 function drawHeatmap() {
@@ -156,29 +149,11 @@ function draw() {
   updateParams();
   drawHeatmap();
   moveParticles();
-
-  if (isRecording) {
-    capturer.capture(document.querySelector('canvas'));
-    recordingFrame++;
-    if (recordingFrame >= maxRecordingFrames) {
-      capturer.stop();
-      capturer.save();
-      isRecording = false;
-      console.log('Recording finished');
-    }
-  }
 }
 
 window.addEventListener('resize', () => {
   resizeCanvas(window.innerWidth, window.innerHeight);
   wipeScreen();
 });
-
-function cubicLerp(start, end, amt) {
-  const t = amt;
-  const eased = 3 * t ** 2 - 2 * t ** 3; // smootherstep
-  return start + (end - start) * eased;
-}
-
 
 

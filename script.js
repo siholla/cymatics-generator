@@ -50,6 +50,37 @@ function DOMinit() {
     });
   }
 
+
+ const numberInputs = {
+    m: select('#mNumber'),
+    n: select('#nNumber'),
+    a: select('#aNumber'),
+    b: select('#bNumber'),
+    v: select('#vNumber'),
+    num: select('#numNumber'),
+    zoom: select('#zoomNumber'),
+    dot: select('#dotNumber'),
+    jitter: select('#jitterNumber')
+  };
+
+  for (let key in numberInputs) {
+    numberInputs[key].input(() => {
+      const value = parseFloat(numberInputs[key].value());
+      sliders[key].value(value); // sync number → slider
+      let tween = {};
+      tween[key] = value;
+      gsap.to(target, {
+        duration: 0.5,
+        ease: CustomEase.create("custom", "0.23, 0.62, 0.26, 0.84"),
+        ...tween
+      });
+    });
+  }
+
+
+
+
+
   select('#saveBtn').mousePressed(() => {
     saveCanvas('cymatic-pattern', 'png');
   });

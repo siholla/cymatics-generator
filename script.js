@@ -1,6 +1,6 @@
-let particles = [], sliders = {}, m, n, a, b, v, N, zoom;
+let particles = [], sliders = {}, m, n, a, b, v, N, zoom, dotSize;
 let current = {}, target = {};
-let dotColorPicker, bgColorPicker, zoomSlider;
+let dotColorPicker, bgColorPicker;
 let showUI = true;
 
 const settings = {
@@ -25,7 +25,8 @@ function DOMinit() {
     b: select('#bSlider'),
     v: select('#vSlider'),
     num: select('#numSlider'),
-    zoom: select('#zoomSlider')
+    zoom: select('#zoomSlider'),
+    size: select('#sizeSlider')
   };
 
   dotColorPicker = select('#dotColor');
@@ -71,15 +72,16 @@ class Particle {
   }
 
   updateOffsets() {
-    let centerX = 0.5, centerY = 0.5;
-    let scale = zoom;
-
-    this.xOff = width * (centerX + (this.x - centerX) * scale);
-    this.yOff = height * (centerY + (this.y - centerY) * scale);
+    // Project from center and stretch with zoom
+    let cx = 0.5, cy = 0.5;
+    let dx = (this.x - cx) * zoom;
+    let dy = (this.y - cy) * zoom;
+    this.xOff = width * (cx + dx);
+    this.yOff = height * (cy + dy);
   }
 
   show() {
-    strokeWeight(zoom * 1.5); // scale dot size
+    strokeWeight(dotSize);
     point(this.xOff, this.yOff);
   }
 }
@@ -97,6 +99,7 @@ function updateParams() {
     target[key] = float(sliders[key].value());
     current[key] = lerp(current[key], target[key], 0.1);
   }
+
   m = current.m;
   n = current.n;
   a = current.a;
@@ -104,6 +107,7 @@ function updateParams() {
   v = current.v;
   N = current.num;
   zoom = current.zoom;
+  dotSize = current.size;
 }
 
 function drawHeatmap() {

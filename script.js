@@ -5,7 +5,7 @@ let showUI = true;
 
 const settings = {
   nParticles: 150000,
-  drawHeatmap: false
+  drawHeatmap: false,
 };
 
 const pi = Math.PI;
@@ -26,7 +26,7 @@ function DOMinit() {
     v: select('#vSlider'),
     num: select('#numSlider'),
     zoom: select('#zoomSlider'),
-    size: select('#sizeSlider')
+    dot: select('#dotSlider')
   };
 
   dotColorPicker = select('#dotColor');
@@ -40,7 +40,8 @@ function DOMinit() {
   document.addEventListener('keydown', (e) => {
     if (e.code === 'Space') {
       showUI = !showUI;
-      document.querySelector('header').classList.toggle('hidden', !showUI);
+      const panel = document.querySelector('header');
+      panel.classList.toggle('hidden', !showUI);
     }
   });
 }
@@ -54,8 +55,8 @@ function setupParticles() {
 
 class Particle {
   constructor() {
-    this.x = random(0, 1);
-    this.y = random(0, 1);
+    this.x = random(-0.5, 0.5);  // centered coords
+    this.y = random(-0.5, 0.5);
     this.updateOffsets();
   }
 
@@ -64,20 +65,17 @@ class Particle {
     let amp = v * abs(eq);
     if (amp <= 0.002) amp = 0.002;
 
+    // Organic random jitter
     this.x += random(-amp, amp) + random(-0.002, 0.002);
     this.y += random(-amp, amp) + random(-0.002, 0.002);
-    this.x = constrain(this.x, 0, 1);
-    this.y = constrain(this.y, 0, 1);
+
     this.updateOffsets();
   }
 
   updateOffsets() {
-    // Project from center and stretch with zoom
-    let cx = 0.5, cy = 0.5;
-    let dx = (this.x - cx) * zoom;
-    let dy = (this.y - cy) * zoom;
-    this.xOff = width * (cx + dx);
-    this.yOff = height * (cy + dy);
+    // Map [-0.5, 0.5] -> [0, width] & height with zoom scale
+    this.xOff = width / 2 + this.x * width * zoom;
+    this.yOff = height / 2 + this.y * height * zoom;
   }
 
   show() {
@@ -99,7 +97,6 @@ function updateParams() {
     target[key] = float(sliders[key].value());
     current[key] = lerp(current[key], target[key], 0.1);
   }
-
   m = current.m;
   n = current.n;
   a = current.a;
@@ -107,7 +104,7 @@ function updateParams() {
   v = current.v;
   N = current.num;
   zoom = current.zoom;
-  dotSize = current.size;
+  dotSize = current.dot;
 }
 
 function drawHeatmap() {
@@ -145,5 +142,6 @@ window.addEventListener('resize', () => {
   resizeCanvas(window.innerWidth, window.innerHeight);
   wipeScreen();
 });
+
 
 

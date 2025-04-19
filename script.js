@@ -1,10 +1,10 @@
-let particles = [], sliders = {}, m, n, a, b, v, N;
+let particles = [], sliders = {}, m, n, a, b, v, N, zoom;
 let current = {}, target = {};
-let dotColorPicker, bgColorPicker;
+let dotColorPicker, bgColorPicker, zoomSlider;
 let showUI = true;
 
 const settings = {
-  nParticles: 150000, // increased base density
+  nParticles: 150000,
   drawHeatmap: false
 };
 
@@ -24,7 +24,8 @@ function DOMinit() {
     a: select('#aSlider'),
     b: select('#bSlider'),
     v: select('#vSlider'),
-    num: select('#numSlider')
+    num: select('#numSlider'),
+    zoom: select('#zoomSlider')
   };
 
   dotColorPicker = select('#dotColor');
@@ -38,8 +39,7 @@ function DOMinit() {
   document.addEventListener('keydown', (e) => {
     if (e.code === 'Space') {
       showUI = !showUI;
-      const panel = document.querySelector('header');
-      panel.classList.toggle('hidden', !showUI);
+      document.querySelector('header').classList.toggle('hidden', !showUI);
     }
   });
 }
@@ -63,7 +63,6 @@ class Particle {
     let amp = v * abs(eq);
     if (amp <= 0.002) amp = 0.002;
 
-    // Slight jitter for more organic look
     this.x += random(-amp, amp) + random(-0.002, 0.002);
     this.y += random(-amp, amp) + random(-0.002, 0.002);
     this.x = constrain(this.x, 0, 1);
@@ -72,11 +71,15 @@ class Particle {
   }
 
   updateOffsets() {
-    this.xOff = width * this.x;
-    this.yOff = height * this.y;
+    let centerX = 0.5, centerY = 0.5;
+    let scale = zoom;
+
+    this.xOff = width * (centerX + (this.x - centerX) * scale);
+    this.yOff = height * (centerY + (this.y - centerY) * scale);
   }
 
   show() {
+    strokeWeight(zoom * 1.5); // scale dot size
     point(this.xOff, this.yOff);
   }
 }
@@ -100,6 +103,7 @@ function updateParams() {
   b = current.b;
   v = current.v;
   N = current.num;
+  zoom = current.zoom;
 }
 
 function drawHeatmap() {

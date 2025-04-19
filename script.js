@@ -62,7 +62,10 @@ function DOMinit() {
   for (let key in numberInputs) {
     numberInputs[key].input(() => {
       const value = parseFloat(numberInputs[key].value());
-      if (!isNaN(value)) {
+      const min = parseFloat(sliders[key].attribute('min'));
+      const max = parseFloat(sliders[key].attribute('max'));
+
+      if (!isNaN(value) && value >= min && value <= max) {
         sliders[key].value(value);
         let tween = {};
         tween[key] = value;
@@ -71,6 +74,8 @@ function DOMinit() {
           ease: CustomEase.create("custom", "0.23, 0.62, 0.26, 0.84"),
           ...tween
         });
+      } else {
+        numberInputs[key].value(sliders[key].value());
       }
     });
   }
@@ -180,4 +185,5 @@ window.addEventListener('resize', () => {
   resizeCanvas(window.innerWidth, window.innerHeight);
   wipeScreen();
 });
+
 

@@ -112,7 +112,7 @@
     }
   </style>
 
-  <!-- Required JS libraries (unchanged!) -->
+  <!-- Core Libraries -->
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/p5"></script>
@@ -141,11 +141,13 @@
     <input type="range" id="vSlider" min="0.01" max="0.1" step="0.01" value="0.02">
 
     <label for="numSlider">Number of Particles</label>
-    <input type="range" id="numSlider" min="2000" max="80000" step="1000" value="40000">
+    <input type="range" id="numSlider" min="2000" max="150000" step="1000" value="40000">
 
-    <!-- 🎯 NEW ZOOM CONTROL -->
     <label for="zoomSlider">Zoom</label>
-    <input type="range" id="zoomSlider" min="0.5" max="2" step="0.01" value="1">
+    <input type="range" id="zoomSlider" min="0.2" max="2.5" step="0.01" value="1">
+
+    <label for="dotSlider">Dot Size</label>
+    <input type="range" id="dotSlider" min="0.1" max="3" step="0.1" value="1">
 
     <div class="color-pickers">
       <div>
@@ -176,6 +178,7 @@
   </script>
 </body>
 </html>
+
 
 
 

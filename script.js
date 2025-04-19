@@ -3,6 +3,11 @@ let current = {}, target = {};
 let dotColorPicker, bgColorPicker;
 let showUI = true;
 
+let capturer;
+let isRecording = false;
+let recordingFrame = 0;
+const maxRecordingFrames = 60 * 5; // 5 seconds at 60fps
+
 const settings = {
   nParticles: 150000,
   drawHeatmap: false,
@@ -40,6 +45,16 @@ function DOMinit() {
 
   select('#saveBtn').mousePressed(() => {
     saveCanvas('cymatic-pattern', 'png');
+  });
+
+  select('#saveVideoBtn').mousePressed(() => {
+    if (!isRecording) {
+      capturer = new CCapture({ format: 'webm', framerate: 60 });
+      recordingFrame = 0;
+      isRecording = true;
+      capturer.start();
+      console.log('Recording started');
+    }
   });
 
   document.addEventListener('keydown', (e) => {
@@ -99,7 +114,7 @@ function moveParticles() {
 function updateParams() {
   for (let key in sliders) {
     target[key] = float(sliders[key].value());
-    current[key] = cubicLerp(current[key], target[key], 0.025);
+    current[key] = cubicLerp(current[key], target[key], 0.075);
   }
   m = current.m;
   n = current.n;
@@ -141,6 +156,17 @@ function draw() {
   updateParams();
   drawHeatmap();
   moveParticles();
+
+  if (isRecording) {
+    capturer.capture(document.querySelector('canvas'));
+    recordingFrame++;
+    if (recordingFrame >= maxRecordingFrames) {
+      capturer.stop();
+      capturer.save();
+      isRecording = false;
+      console.log('Recording finished');
+    }
+  }
 }
 
 window.addEventListener('resize', () => {

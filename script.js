@@ -99,7 +99,7 @@ function moveParticles() {
 function updateParams() {
   for (let key in sliders) {
     target[key] = float(sliders[key].value());
-    current[key] = cubicLerp(current[key], target[key], 0.075);
+    current[key] = cubicLerp(current[key], target[key], 0.025);
   }
   m = current.m;
   n = current.n;

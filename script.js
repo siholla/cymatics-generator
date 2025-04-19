@@ -1,4 +1,4 @@
-let particles = [], sliders = {}, m, n, a, b, v, N, zoom, dotSize;
+let particles = [], sliders = {}, m, n, a, b, v, N, zoom, dotSize, jitterAmount;
 let current = {}, target = {};
 let dotColorPicker, bgColorPicker;
 let showUI = true;
@@ -26,7 +26,8 @@ function DOMinit() {
     v: select('#vSlider'),
     num: select('#numSlider'),
     zoom: select('#zoomSlider'),
-    dot: select('#dotSlider')
+    dot: select('#dotSlider'),
+    jitter: select('#jitterSlider')
   };
 
   dotColorPicker = select('#dotColor');
@@ -36,6 +37,10 @@ function DOMinit() {
     current[key] = float(sliders[key].value());
     target[key] = float(sliders[key].value());
   }
+
+  select('#saveBtn').mousePressed(() => {
+    saveCanvas('cymatic-pattern', 'png');
+  });
 
   document.addEventListener('keydown', (e) => {
     if (e.code === 'Space') {
@@ -55,7 +60,7 @@ function setupParticles() {
 
 class Particle {
   constructor() {
-    this.x = random(-0.5, 0.5);  // centered coords
+    this.x = random(-0.5, 0.5);
     this.y = random(-0.5, 0.5);
     this.updateOffsets();
   }
@@ -65,15 +70,14 @@ class Particle {
     let amp = v * abs(eq);
     if (amp <= 0.002) amp = 0.002;
 
-    // Organic random jitter
-    this.x += random(-amp, amp) + random(-0.002, 0.002);
-    this.y += random(-amp, amp) + random(-0.002, 0.002);
+    let jitter = jitterAmount * 0.005;
+    this.x += random(-amp, amp) + random(-jitter, jitter);
+    this.y += random(-amp, amp) + random(-jitter, jitter);
 
     this.updateOffsets();
   }
 
   updateOffsets() {
-    // Map [-0.5, 0.5] -> [0, width] & height with zoom scale
     this.xOff = width / 2 + this.x * width * zoom;
     this.yOff = height / 2 + this.y * height * zoom;
   }
@@ -95,7 +99,7 @@ function moveParticles() {
 function updateParams() {
   for (let key in sliders) {
     target[key] = float(sliders[key].value());
-    current[key] = lerp(current[key], target[key], 0.1);
+    current[key] = cubicLerp(current[key], target[key], 0.075);
   }
   m = current.m;
   n = current.n;
@@ -105,6 +109,7 @@ function updateParams() {
   N = current.num;
   zoom = current.zoom;
   dotSize = current.dot;
+  jitterAmount = current.jitter;
 }
 
 function drawHeatmap() {
@@ -142,6 +147,12 @@ window.addEventListener('resize', () => {
   resizeCanvas(window.innerWidth, window.innerHeight);
   wipeScreen();
 });
+
+function cubicLerp(start, end, amt) {
+  const t = amt;
+  const eased = 3 * t ** 2 - 2 * t ** 3; // smootherstep
+  return start + (end - start) * eased;
+}
 
 
 

@@ -43,8 +43,8 @@ function DOMinit() {
       let tween = {};
       tween[key] = newVal;
       gsap.to(target, {
-        duration: 0.25,
-        ease: CustomEase.create("custom", "0.60,0.03,0.41,0.95"),
+        duration: 0.12,
+        ease: CustomEase.create("custom", "0.23, 0.62, 0.26, 0.84"),
         ...tween
       });
     });

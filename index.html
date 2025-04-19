@@ -32,7 +32,7 @@
       top: 0;
       left: 0;
       height: 100vh;
-      width: 280px;
+      width: 300px;
       background: rgba(30, 30, 30, 0.95);
       color: #fff;
       padding: 20px;
@@ -63,8 +63,18 @@
       display: block;
     }
 
+    .slider-group {
+      margin-bottom: 8px;
+    }
+
+    .slider-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
     input[type=range] {
-      width: 100%;
+      flex: 1;
     }
 
     input[type=color] {
@@ -76,6 +86,17 @@
       margin-top: 5px;
       border-radius: 50%;
       cursor: pointer;
+    }
+
+    input[type=text].hex-input,
+    input[type=number] {
+      width: 60px;
+      padding: 4px;
+      background: #222;
+      border: 1px solid #444;
+      color: white;
+      border-radius: 6px;
+      font-size: 12px;
     }
 
     fieldset {
@@ -94,6 +115,7 @@
     .color-pickers div {
       text-align: center;
       font-size: 12px;
+      width: 48%;
     }
 
     #saveBtn {
@@ -124,16 +146,11 @@
     }
   </style>
 
-  <!-- Core Libraries -->
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/p5"></script>
-
-  <!-- GSAP with CustomEase -->
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/CustomEase.min.js"></script>
-
-  <!-- Your script -->
   <script src="./script.js" defer></script>
 </head>
 
@@ -141,43 +158,88 @@
   <header id="ui">
     <h1>Chladni Controls</h1>
 
-    <fieldset>
+    <div class="slider-group">
       <label for="mSlider">M</label>
-      <input type="range" id="mSlider" min="1" max="16" step="1" value="8">
+      <div class="slider-wrap">
+        <input type="range" id="mSlider" min="1" max="16" step="1" value="8">
+        <input type="number" id="mNumber" min="1" max="16" step="1" value="8">
+      </div>
+    </div>
 
+    <div class="slider-group">
       <label for="nSlider">N</label>
-      <input type="range" id="nSlider" min="1" max="16" step="1" value="4">
+      <div class="slider-wrap">
+        <input type="range" id="nSlider" min="1" max="16" step="1" value="4">
+        <input type="number" id="nNumber" min="1" max="16" step="1" value="4">
+      </div>
+    </div>
 
+    <div class="slider-group">
       <label for="aSlider">A</label>
-      <input type="range" id="aSlider" min="-2" max="2" step="1" value="1">
+      <div class="slider-wrap">
+        <input type="range" id="aSlider" min="-2" max="2" step="1" value="1">
+        <input type="number" id="aNumber" min="-2" max="2" step="1" value="1">
+      </div>
+    </div>
 
+    <div class="slider-group">
       <label for="bSlider">B</label>
-      <input type="range" id="bSlider" min="-2" max="2" step="1" value="1">
-    </fieldset>
+      <div class="slider-wrap">
+        <input type="range" id="bSlider" min="-2" max="2" step="1" value="1">
+        <input type="number" id="bNumber" min="-2" max="2" step="1" value="1">
+      </div>
+    </div>
 
-    <label for="vSlider">Vibration Strength</label>
-    <input type="range" id="vSlider" min="0.01" max="0.1" step="0.01" value="0.02">
+    <div class="slider-group">
+      <label for="vSlider">Vibration Strength</label>
+      <div class="slider-wrap">
+        <input type="range" id="vSlider" min="0.01" max="0.1" step="0.01" value="0.02">
+        <input type="number" id="vNumber" min="0.01" max="0.1" step="0.01" value="0.02">
+      </div>
+    </div>
 
-    <label for="numSlider">Number of Particles</label>
-    <input type="range" id="numSlider" min="2000" max="150000" step="1000" value="40000">
+    <div class="slider-group">
+      <label for="numSlider">Number of Particles</label>
+      <div class="slider-wrap">
+        <input type="range" id="numSlider" min="2000" max="150000" step="1000" value="40000">
+        <input type="number" id="numNumber" min="2000" max="150000" step="1000" value="40000">
+      </div>
+    </div>
 
-    <label for="zoomSlider">Zoom</label>
-    <input type="range" id="zoomSlider" min="0.2" max="2.5" step="0.01" value="1">
+    <div class="slider-group">
+      <label for="zoomSlider">Zoom</label>
+      <div class="slider-wrap">
+        <input type="range" id="zoomSlider" min="0.2" max="2.5" step="0.01" value="1">
+        <input type="number" id="zoomNumber" min="0.2" max="2.5" step="0.01" value="1">
+      </div>
+    </div>
 
-    <label for="dotSlider">Dot Size</label>
-    <input type="range" id="dotSlider" min="0.1" max="3" step="0.1" value="1">
+    <div class="slider-group">
+      <label for="dotSlider">Dot Size</label>
+      <div class="slider-wrap">
+        <input type="range" id="dotSlider" min="0.1" max="3" step="0.1" value="1">
+        <input type="number" id="dotNumber" min="0.1" max="3" step="0.1" value="1">
+      </div>
+    </div>
 
-    <label for="jitterSlider">Pattern Jitter</label>
-    <input type="range" id="jitterSlider" min="0" max="1" step="0.01" value="0.25">
+    <div class="slider-group">
+      <label for="jitterSlider">Pattern Jitter</label>
+      <div class="slider-wrap">
+        <input type="range" id="jitterSlider" min="0" max="1" step="0.01" value="0.25">
+        <input type="number" id="jitterNumber" min="0" max="1" step="0.01" value="0.25">
+      </div>
+    </div>
 
     <div class="color-pickers">
       <div>
         <label for="dotColor">Particle</label>
         <input type="color" id="dotColor" value="#ffffff">
+        <input type="text" class="hex-input" id="dotHex" value="#ffffff">
       </div>
       <div>
         <label for="bgColor">Background</label>
         <input type="color" id="bgColor" value="#000000">
+        <input type="text" class="hex-input" id="bgHex" value="#000000">
       </div>
     </div>
 
@@ -198,11 +260,39 @@
         document.getElementById('ui').classList.toggle('hidden');
       }
     });
+
+    function syncSlider(sliderId, numberId) {
+      const slider = document.getElementById(sliderId);
+      const number = document.getElementById(numberId);
+      slider.addEventListener('input', () => number.value = slider.value);
+      number.addEventListener('input', () => slider.value = number.value);
+    }
+
+    const pairs = [
+      ['mSlider', 'mNumber'], ['nSlider', 'nNumber'],
+      ['aSlider', 'aNumber'], ['bSlider', 'bNumber'],
+      ['vSlider', 'vNumber'], ['numSlider', 'numNumber'],
+      ['zoomSlider', 'zoomNumber'], ['dotSlider', 'dotNumber'],
+      ['jitterSlider', 'jitterNumber']
+    ];
+    window.addEventListener('DOMContentLoaded', () => {
+      pairs.forEach(([slider, number]) => syncSlider(slider, number));
+
+      const syncColorHex = (colorInput, hexInput) => {
+        colorInput.addEventListener('input', () => hexInput.value = colorInput.value.toUpperCase());
+        hexInput.addEventListener('input', () => {
+          if (/^#([0-9A-F]{3}){1,2}$/i.test(hexInput.value)) {
+            colorInput.value = hexInput.value;
+          }
+        });
+      };
+
+      syncColorHex(document.getElementById('dotColor'), document.getElementById('dotHex'));
+      syncColorHex(document.getElementById('bgColor'), document.getElementById('bgHex'));
+    });
   </script>
 </body>
 </html>
-
-
 
 
 

@@ -1,3 +1,5 @@
+
+
 let particles = [], sliders = {}, m, n, a, b, v, N, zoom, dotSize, jitterAmount;
 let target = {};
 let dotColorPicker, bgColorPicker;
@@ -35,13 +37,11 @@ function DOMinit() {
 
   for (let key in sliders) {
     target[key] = parseFloat(sliders[key].value());
-  }
 
-  for (let key in sliders) {
+    // Update target values with GSAP when sliders change
     sliders[key].input(() => {
-      const newVal = parseFloat(sliders[key].value());
       let tween = {};
-      tween[key] = newVal;
+      tween[key] = parseFloat(sliders[key].value());
       gsap.to(target, {
         duration: 0.5,
         ease: CustomEase.create("custom", "0.23, 0.62, 0.26, 0.84"),
@@ -155,5 +155,4 @@ window.addEventListener('resize', () => {
   resizeCanvas(window.innerWidth, window.innerHeight);
   wipeScreen();
 });
-
 

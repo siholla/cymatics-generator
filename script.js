@@ -6,12 +6,8 @@ let showUI = true;
 const settings = {
   nParticles: 150000,
   drawHeatmap: false,
-  transitionDuration: 0.75,
-  easing: t => {
-    // cubic-bezier(0.60, 0.03, 0.41, 0.95)
-    const p0 = 0, p1 = 0.03, p2 = 0.95, p3 = 1;
-    return (1 - t)**3 * p0 + 3 * (1 - t)**2 * t * p1 + 3 * (1 - t) * t**2 * p2 + t**3 * p3;
-  }
+  easingDuration: 0.75,
+  easing: t => (1 - t)**3 * 0 + 3 * (1 - t)**2 * t * 0.03 + 3 * (1 - t) * t**2 * 0.95 + t**3 * 1 // cubic-bezier(0.60, 0.03, 0.41, 0.95)
 };
 
 const pi = Math.PI;
@@ -63,7 +59,6 @@ class Particle {
   constructor() {
     this.x = random(0, 1);
     this.y = random(0, 1);
-    this.updateOffsets();
   }
 
   move() {
@@ -71,31 +66,25 @@ class Particle {
     let amp = v * abs(eq);
     if (amp <= 0.002) amp = 0.002;
 
-    // jitter for organic feel
     this.x += random(-amp, amp) + random(-0.0015, 0.0015);
     this.y += random(-amp, amp) + random(-0.0015, 0.0015);
+
     this.x = constrain(this.x, 0, 1);
     this.y = constrain(this.y, 0, 1);
-
-    this.updateOffsets();
-  }
-
-  updateOffsets() {
-    // edge-to-edge zoom scaling
-    const centerX = 0.5;
-    const centerY = 0.5;
-    const scale = zoom;
-
-    let zx = (this.x - centerX) * scale + centerX;
-    let zy = (this.y - centerY) * scale + centerY;
-
-    this.xOff = zx * width;
-    this.yOff = zy * height;
   }
 
   show() {
+    const centerX = 0.5;
+    const centerY = 0.5;
+
+    let zx = (this.x - centerX) * zoom + centerX;
+    let zy = (this.y - centerY) * zoom + centerY;
+
+    let xOff = zx * width;
+    let yOff = zy * height;
+
     strokeWeight(dotSize);
-    point(this.xOff, this.yOff);
+    point(xOff, yOff);
   }
 }
 
@@ -108,11 +97,10 @@ function moveParticles() {
 }
 
 function updateParams() {
-  const easeAmount = 0.05;
+  const easeStep = 0.05;
   for (let key in sliders) {
     target[key] = float(sliders[key].value());
-    let diff = target[key] - current[key];
-    current[key] += diff * settings.easing(easeAmount);
+    current[key] += (target[key] - current[key]) * settings.easing(easeStep);
   }
 
   m = current.m;
@@ -126,15 +114,14 @@ function updateParams() {
 }
 
 function drawHeatmap() {
-  if (settings.drawHeatmap) {
-    let res = 3;
-    for (let i = 0; i <= width; i += res) {
-      for (let j = 0; j <= height; j += res) {
-        let eq = chladni(i / width, j / height, a, b, m, n);
-        noStroke();
-        fill((eq + 1) * 127.5);
-        square(i, j, res);
-      }
+  if (!settings.drawHeatmap) return;
+  let res = 3;
+  for (let i = 0; i <= width; i += res) {
+    for (let j = 0; j <= height; j += res) {
+      let eq = chladni(i / width, j / height, a, b, m, n);
+      noStroke();
+      fill((eq + 1) * 127.5);
+      square(i, j, res);
     }
   }
 }

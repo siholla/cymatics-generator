@@ -1,5 +1,3 @@
-
-
 let particles = [], sliders = {}, m, n, a, b, v, N, zoom, dotSize, jitterAmount;
 let target = {};
 let dotColorPicker, bgColorPicker;
@@ -38,7 +36,6 @@ function DOMinit() {
   for (let key in sliders) {
     target[key] = parseFloat(sliders[key].value());
 
-    // Update target values with GSAP when sliders change
     sliders[key].input(() => {
       let tween = {};
       tween[key] = parseFloat(sliders[key].value());
@@ -50,8 +47,7 @@ function DOMinit() {
     });
   }
 
-
- const numberInputs = {
+  const numberInputs = {
     m: select('#mNumber'),
     n: select('#nNumber'),
     a: select('#aNumber'),
@@ -66,20 +62,18 @@ function DOMinit() {
   for (let key in numberInputs) {
     numberInputs[key].input(() => {
       const value = parseFloat(numberInputs[key].value());
-      sliders[key].value(value); // sync number → slider
-      let tween = {};
-      tween[key] = value;
-      gsap.to(target, {
-        duration: 0.5,
-        ease: CustomEase.create("custom", "0.23, 0.62, 0.26, 0.84"),
-        ...tween
-      });
+      if (!isNaN(value)) {
+        sliders[key].value(value);
+        let tween = {};
+        tween[key] = value;
+        gsap.to(target, {
+          duration: 0.5,
+          ease: CustomEase.create("custom", "0.23, 0.62, 0.26, 0.84"),
+          ...tween
+        });
+      }
     });
   }
-
-
-
-
 
   select('#saveBtn').mousePressed(() => {
     saveCanvas('cymatic-pattern', 'png');

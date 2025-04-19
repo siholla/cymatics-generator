@@ -6,6 +6,12 @@ let showUI = true;
 const settings = {
   nParticles: 150000,
   drawHeatmap: false,
+  transitionDuration: 0.75,
+  easing: t => {
+    // cubic-bezier(0.60, 0.03, 0.41, 0.95)
+    const p0 = 0, p1 = 0.03, p2 = 0.95, p3 = 1;
+    return (1 - t)**3 * p0 + 3 * (1 - t)**2 * t * p1 + 3 * (1 - t) * t**2 * p2 + t**3 * p3;
+  }
 };
 
 const pi = Math.PI;
@@ -26,7 +32,7 @@ function DOMinit() {
     v: select('#vSlider'),
     num: select('#numSlider'),
     zoom: select('#zoomSlider'),
-    dot: select('#dotSlider')
+    dotSize: select('#dotSlider')
   };
 
   dotColorPicker = select('#dotColor');
@@ -55,8 +61,8 @@ function setupParticles() {
 
 class Particle {
   constructor() {
-    this.x = random(-0.5, 0.5);  // centered coords
-    this.y = random(-0.5, 0.5);
+    this.x = random(0, 1);
+    this.y = random(0, 1);
     this.updateOffsets();
   }
 
@@ -65,17 +71,26 @@ class Particle {
     let amp = v * abs(eq);
     if (amp <= 0.002) amp = 0.002;
 
-    // Organic random jitter
-    this.x += random(-amp, amp) + random(-0.002, 0.002);
-    this.y += random(-amp, amp) + random(-0.002, 0.002);
+    // jitter for organic feel
+    this.x += random(-amp, amp) + random(-0.0015, 0.0015);
+    this.y += random(-amp, amp) + random(-0.0015, 0.0015);
+    this.x = constrain(this.x, 0, 1);
+    this.y = constrain(this.y, 0, 1);
 
     this.updateOffsets();
   }
 
   updateOffsets() {
-    // Map [-0.5, 0.5] -> [0, width] & height with zoom scale
-    this.xOff = width / 2 + this.x * width * zoom;
-    this.yOff = height / 2 + this.y * height * zoom;
+    // edge-to-edge zoom scaling
+    const centerX = 0.5;
+    const centerY = 0.5;
+    const scale = zoom;
+
+    let zx = (this.x - centerX) * scale + centerX;
+    let zy = (this.y - centerY) * scale + centerY;
+
+    this.xOff = zx * width;
+    this.yOff = zy * height;
   }
 
   show() {
@@ -93,10 +108,13 @@ function moveParticles() {
 }
 
 function updateParams() {
+  const easeAmount = 0.05;
   for (let key in sliders) {
     target[key] = float(sliders[key].value());
-    current[key] = lerp(current[key], target[key], 0.1);
+    let diff = target[key] - current[key];
+    current[key] += diff * settings.easing(easeAmount);
   }
+
   m = current.m;
   n = current.n;
   a = current.a;
@@ -104,7 +122,7 @@ function updateParams() {
   v = current.v;
   N = current.num;
   zoom = current.zoom;
-  dotSize = current.dot;
+  dotSize = current.dotSize;
 }
 
 function drawHeatmap() {

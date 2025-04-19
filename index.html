@@ -95,6 +95,17 @@
       font-size: 12px;
     }
 
+    #saveBtn {
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 8px;
+      background: #222;
+      color: white;
+      border: 1px solid #444;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
     footer {
       position: absolute;
       bottom: 10px;
@@ -149,6 +160,9 @@
     <label for="dotSlider">Dot Size</label>
     <input type="range" id="dotSlider" min="0.1" max="3" step="0.1" value="1">
 
+    <label for="jitterSlider">Pattern Jitter</label>
+    <input type="range" id="jitterSlider" min="0" max="1" step="0.01" value="0.25">
+
     <div class="color-pickers">
       <div>
         <label for="dotColor">Particle</label>
@@ -159,6 +173,8 @@
         <input type="color" id="bgColor" value="#000000">
       </div>
     </div>
+
+    <button id="saveBtn">Save Image</button>
   </header>
 
   <main id="sketch-container"></main>

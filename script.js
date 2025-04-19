@@ -5,9 +5,7 @@ let showUI = true;
 
 const settings = {
   nParticles: 150000,
-  drawHeatmap: false,
-  easingDuration: 0.75,
-  easing: t => (1 - t)**3 * 0 + 3 * (1 - t)**2 * t * 0.03 + 3 * (1 - t) * t**2 * 0.95 + t**3 * 1 // cubic-bezier(0.60, 0.03, 0.41, 0.95)
+  drawHeatmap: false
 };
 
 const pi = Math.PI;
@@ -28,7 +26,7 @@ function DOMinit() {
     v: select('#vSlider'),
     num: select('#numSlider'),
     zoom: select('#zoomSlider'),
-    dotSize: select('#dotSlider')
+    size: select('#sizeSlider')
   };
 
   dotColorPicker = select('#dotColor');
@@ -42,8 +40,7 @@ function DOMinit() {
   document.addEventListener('keydown', (e) => {
     if (e.code === 'Space') {
       showUI = !showUI;
-      const panel = document.querySelector('header');
-      panel.classList.toggle('hidden', !showUI);
+      document.querySelector('header').classList.toggle('hidden', !showUI);
     }
   });
 }
@@ -59,6 +56,7 @@ class Particle {
   constructor() {
     this.x = random(0, 1);
     this.y = random(0, 1);
+    this.updateOffsets();
   }
 
   move() {
@@ -66,25 +64,25 @@ class Particle {
     let amp = v * abs(eq);
     if (amp <= 0.002) amp = 0.002;
 
-    this.x += random(-amp, amp) + random(-0.0015, 0.0015);
-    this.y += random(-amp, amp) + random(-0.0015, 0.0015);
-
+    this.x += random(-amp, amp) + random(-0.002, 0.002);
+    this.y += random(-amp, amp) + random(-0.002, 0.002);
     this.x = constrain(this.x, 0, 1);
     this.y = constrain(this.y, 0, 1);
+    this.updateOffsets();
+  }
+
+  updateOffsets() {
+    // Project from center and stretch with zoom
+    let cx = 0.5, cy = 0.5;
+    let dx = (this.x - cx) * zoom;
+    let dy = (this.y - cy) * zoom;
+    this.xOff = width * (cx + dx);
+    this.yOff = height * (cy + dy);
   }
 
   show() {
-    const centerX = 0.5;
-    const centerY = 0.5;
-
-    let zx = (this.x - centerX) * zoom + centerX;
-    let zy = (this.y - centerY) * zoom + centerY;
-
-    let xOff = zx * width;
-    let yOff = zy * height;
-
     strokeWeight(dotSize);
-    point(xOff, yOff);
+    point(this.xOff, this.yOff);
   }
 }
 
@@ -97,10 +95,9 @@ function moveParticles() {
 }
 
 function updateParams() {
-  const easeStep = 0.05;
   for (let key in sliders) {
     target[key] = float(sliders[key].value());
-    current[key] += (target[key] - current[key]) * settings.easing(easeStep);
+    current[key] = lerp(current[key], target[key], 0.1);
   }
 
   m = current.m;
@@ -110,18 +107,19 @@ function updateParams() {
   v = current.v;
   N = current.num;
   zoom = current.zoom;
-  dotSize = current.dotSize;
+  dotSize = current.size;
 }
 
 function drawHeatmap() {
-  if (!settings.drawHeatmap) return;
-  let res = 3;
-  for (let i = 0; i <= width; i += res) {
-    for (let j = 0; j <= height; j += res) {
-      let eq = chladni(i / width, j / height, a, b, m, n);
-      noStroke();
-      fill((eq + 1) * 127.5);
-      square(i, j, res);
+  if (settings.drawHeatmap) {
+    let res = 3;
+    for (let i = 0; i <= width; i += res) {
+      for (let j = 0; j <= height; j += res) {
+        let eq = chladni(i / width, j / height, a, b, m, n);
+        noStroke();
+        fill((eq + 1) * 127.5);
+        square(i, j, res);
+      }
     }
   }
 }
@@ -147,4 +145,5 @@ window.addEventListener('resize', () => {
   resizeCanvas(window.innerWidth, window.innerHeight);
   wipeScreen();
 });
+
 

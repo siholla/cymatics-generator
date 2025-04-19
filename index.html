@@ -78,6 +78,17 @@
       cursor: pointer;
     }
 
+    input[type=text].hex-input {
+      width: 100%;
+      margin-top: 5px;
+      background: #222;
+      border: 1px solid #444;
+      color: white;
+      padding: 4px 6px;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+
     fieldset {
       border: none;
       padding: 0;
@@ -94,6 +105,7 @@
     .color-pickers div {
       text-align: center;
       font-size: 12px;
+      width: 48%;
     }
 
     #saveBtn {
@@ -174,10 +186,12 @@
       <div>
         <label for="dotColor">Particle</label>
         <input type="color" id="dotColor" value="#ffffff">
+        <input type="text" class="hex-input" id="dotHex" value="#ffffff">
       </div>
       <div>
         <label for="bgColor">Background</label>
         <input type="color" id="bgColor" value="#000000">
+        <input type="text" class="hex-input" id="bgHex" value="#000000">
       </div>
     </div>
 
@@ -197,6 +211,29 @@
       if (e.code === 'Space') {
         document.getElementById('ui').classList.toggle('hidden');
       }
+    });
+
+    // Sync color picker <-> hex field
+    const syncColorHex = (colorInput, hexInput) => {
+      colorInput.addEventListener('input', () => {
+        hexInput.value = colorInput.value.toUpperCase();
+      });
+      hexInput.addEventListener('input', () => {
+        if (/^#([0-9A-F]{3}){1,2}$/i.test(hexInput.value)) {
+          colorInput.value = hexInput.value;
+        }
+      });
+    };
+
+    window.addEventListener('DOMContentLoaded', () => {
+      syncColorHex(
+        document.getElementById('dotColor'),
+        document.getElementById('dotHex')
+      );
+      syncColorHex(
+        document.getElementById('bgColor'),
+        document.getElementById('bgHex')
+      );
     });
   </script>
 </body>

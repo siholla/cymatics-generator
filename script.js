@@ -60,22 +60,24 @@ function DOMinit() {
   };
 
   for (let key in numberInputs) {
-    numberInputs[key].input(() => {
-      const value = parseFloat(numberInputs[key].value());
-      const min = parseFloat(sliders[key].attribute('min'));
-      const max = parseFloat(sliders[key].attribute('max'));
+    numberInputs[key].elt.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const value = parseFloat(numberInputs[key].value());
+        const min = parseFloat(sliders[key].attribute('min'));
+        const max = parseFloat(sliders[key].attribute('max'));
 
-      if (!isNaN(value) && value >= min && value <= max) {
-        sliders[key].value(value);
-        let tween = {};
-        tween[key] = value;
-        gsap.to(target, {
-          duration: 0.5,
-          ease: CustomEase.create("custom", "0.23, 0.62, 0.26, 0.84"),
-          ...tween
-        });
-      } else {
-        numberInputs[key].value(sliders[key].value());
+        if (!isNaN(value) && value >= min && value <= max) {
+          sliders[key].value(value);
+          let tween = {};
+          tween[key] = value;
+          gsap.to(target, {
+            duration: 0.5,
+            ease: CustomEase.create("custom", "0.23, 0.62, 0.26, 0.84"),
+            ...tween
+          });
+        } else {
+          numberInputs[key].value(sliders[key].value());
+        }
       }
     });
   }

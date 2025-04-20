@@ -25,58 +25,143 @@
       height: 100vh;
       z-index: 1;
       display: block;
+      z-index:5;
     }
 
     header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 100vh;
-      width: 300px;
-      background: rgba(30, 30, 30, 0.95);
-      color: #fff;
-      padding: 20px;
+      position: relative;
+       z-index:50;
+      top: 1rem;
+      bottom: 1rem;
+      left: 1rem;
+    
+      height: calc(100vh - 2rem);
+      width: 20rem;
+      background: rgba(30, 30, 30, 100);
+      color: #666666;
+      padding: 18px;
       box-sizing: border-box;
-      border-top-right-radius: 20px;
-      border-bottom-right-radius: 20px;
-      z-index: 10;
-      transition: transform 0.3s ease;
+      border-radius: 12px;
+      transition: transform 0.5s ease;
       transform: translateX(0);
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 2px; 
+      text-transform: uppercase;
     }
 
     header.hidden {
-      transform: translateX(-100%);
+      transform: translateX(-120%);
     }
 
     h1 {
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 1.4rem;
+      padding-bottom: 1rem;
+        border-bottom:1px solid rgba(255,255, 255, .08);
     }
 
     label {
       font-size: 12px;
-      margin-top: 10px;
+      
       display: block;
     }
 
     .slider-group {
       margin-bottom: 8px;
+       display: flex;
+      width:100%;
+      flex-direction: row;
+        align-items: center;
+      gap: 14px; 
+
+    }
+
+
+.slider-group-full {
+      margin-bottom: 8px;
+       display: flex;
+      width:100%;
+    flex-direction: column;
+        align-items: center;
+      gap: 6px; 
+
     }
 
     .slider-wrap {
       display: flex;
       align-items: center;
       gap: 8px;
+      Width:100%;
+    }
+
+    .label{
+      width:4%;
     }
 
     input[type=range] {
       flex: 1;
     }
+/*********** Baseline, reset styles ***********/
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  width: 100%;
+}
 
+/* Removes default focus */
+input[type="range"]:focus {
+  outline: none;
+}
+
+/******** Chrome, Safari, Opera and Edge Chromium styles ********/
+/* slider track */
+input[type="range"]::-webkit-slider-runnable-track {
+  background-color: #000000;
+  border-radius: 99px;
+  height: 0.3rem;
+}
+
+/* slider thumb */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Override default look */
+  appearance: none;
+  margin-top: -3.1999999999999997px; /* Centers thumb on the track */
+  background-color: #a6a6a6;
+  border-radius: 99px;
+  height: 0.7rem;
+  width: 0.7rem;
+}
+
+input[type="range"]:focus::-webkit-slider-thumb {
+  outline: 3px solid #a6a6a6;
+  outline-offset: 0.125rem;
+}
+
+/*********** Firefox styles ***********/
+/* slider track */
+input[type="range"]::-moz-range-track {
+  background-color: #000000;
+  border-radius: 99px;
+  height: 0.3rem;
+}
+
+/* slider thumb */
+input[type="range"]::-moz-range-thumb {
+  background-color: #a6a6a6;
+  border: none; /*Removes extra border that FF applies*/
+  border-radius: 99px;
+  height: 0.7rem;
+  width: 0.7rem;
+}
+
+input[type="range"]:focus::-moz-range-thumb{
+  outline: 3px solid #a6a6a6;
+  outline-offset: 0.125rem;
+}
     input[type=color] {
       width: 40px;
       height: 40px;
@@ -87,17 +172,44 @@
       border-radius: 50%;
       cursor: pointer;
     }
-
+    .hex-input{
+         width:100%;
+      
+    }
     input[type=text].hex-input,
     input[type=number] {
-      width: 60px;
-      padding: 4px;
+ 
+      padding: 0.1rem;
+      padding-left:0.4rem;
+       padding-right:0.4rem;
       background: #222;
-      border: 1px solid #444;
-      color: white;
-      border-radius: 6px;
+      border: 1px solid rgba(255,255, 255, .1);
+      text-align:center !Important;
+      color: #666666;
+      border-radius: 99px;
       font-size: 12px;
     }
+input[type='number']::-webkit-inner-spin-button, 
+input[type='number']::-webkit-outer-spin-button { 
+    opacity: 0;
+  background:#222;
+     width: 0px;
+}
+
+
+/* Spin Buttons modified */
+input[type="number"]::-webkit-outer-spin-button, 
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    background: #222 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAYAAADgkQYQAAAAKUlEQVQYlWNgwAT/sYhhKPiPT+F/LJgEsHv37v+EMGkmkuImoh2NoQAANlcun/q4OoYAAAAASUVORK5CYII=) no-repeat center center;
+    width: 0px;
+    border-left: 0px solid #BBB;
+    opacity: .5; /* shows Spin Buttons per default (Chrome >= 39) */
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
 
     fieldset {
       border: none;
@@ -107,9 +219,11 @@
 
     .color-pickers {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 20px;
+      width:100%;
+     margin-top:1rem;
+      margin-bottom:1rem;
+      align-items: left;
+      gap:8px;
     }
 
     .color-pickers div {
@@ -119,12 +233,12 @@
     }
 
     #saveBtn {
-      margin-top: 20px;
-      padding: 10px;
-      border-radius: 8px;
+      margin-top: 0.25rem;
+      padding: 12px;
+      border-radius: 99px;
       background: #222;
-      color: white;
-      border: 1px solid #444;
+      color: #666666;
+      border: 1px solid rgba(255,255, 255, .08);
       cursor: pointer;
       font-family: inherit;
     }
@@ -144,6 +258,77 @@
     #sketch-container {
       z-index: 0;
     }
+
+    .input-group{
+
+    
+       padding-bottom:1rem;
+      margin-bottom:1.4rem;
+     
+  
+      border-bottom:1px solid rgba(255,255, 255, .08);
+    
+}
+    
+    .small-num{
+      Width:12%;
+    }
+     .big-num{
+      Width:20%;
+    }
+    .color-hex{
+  Width:100%;
+}
+    
+    .full-l-header{ width:100%;}
+    .color-box{
+       display: flex;
+      width:50%;
+      flex-direction: row;
+      gap:8px;
+      
+}
+    .color-input{
+       display: flex;
+      width:50%;
+      flex-direction: column;
+      gap:8px;
+}
+ 
+input[type="color" i] {
+  po
+    -webkit-appearance: round-button;
+     width: 2.5rem;
+    height: 2.5rem;
+   
+   
+  border:1px solid rgba(255,255, 255, .08);
+
+  overflow:hidden;
+    border-image: initial;
+ 
+}
+
+.color {
+ position: relative;
+  top:-5px;
+  -webkit-appearance: none;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+ width: 2.5rem;
+    height: 2.5rem;
+}
+.color::-webkit-color-swatch {
+  border: none;
+    border-radius: 100%;
+  padding: 0;
+}
+.color::-webkit-color-swatch-wrapper {
+  border: none;
+    border-radius: 100%;
+  padding: 0;
+}
   </style>
 
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
@@ -156,92 +341,102 @@
 
 <body>
   <header id="ui">
-    <h1>Chladni Controls</h1>
-
+    <h1>Cymatics - Controls</h1>
+<div class="input-group">
     <div class="slider-group">
-      <label for="mSlider">M</label>
+      <label class="label" for="mSlider">M</label>
       <div class="slider-wrap">
         <input type="range" id="mSlider" min="1" max="16" step="1" value="8">
-        <input type="number" id="mNumber" min="1" max="16" step="1" value="8">
+        <input class="small-num" type="number" id="mNumber" min="1" max="16" step="1" value="8">
       </div>
     </div>
 
     <div class="slider-group">
-      <label for="nSlider">N</label>
+      <label class="label" for="nSlider">N</label>
       <div class="slider-wrap">
         <input type="range" id="nSlider" min="1" max="16" step="1" value="4">
-        <input type="number" id="nNumber" min="1" max="16" step="1" value="4">
+        <input class="small-num" type="number" id="nNumber" min="1" max="16" step="1" value="4">
       </div>
     </div>
 
     <div class="slider-group">
-      <label for="aSlider">A</label>
+      <label class="label" for="aSlider">A</label>
       <div class="slider-wrap">
         <input type="range" id="aSlider" min="-2" max="2" step="1" value="1">
-        <input type="number" id="aNumber" min="-2" max="2" step="1" value="1">
+        <input class="small-num" type="number" id="aNumber" min="-2" max="2" step="1" value="1">
       </div>
     </div>
 
     <div class="slider-group">
-      <label for="bSlider">B</label>
+      <label class="label" for="bSlider">B</label>
       <div class="slider-wrap">
         <input type="range" id="bSlider" min="-2" max="2" step="1" value="1">
-        <input type="number" id="bNumber" min="-2" max="2" step="1" value="1">
+        <input class="small-num" type="number" id="bNumber" min="-2" max="2" step="1" value="1">
       </div>
     </div>
-
-    <div class="slider-group">
-      <label for="vSlider">Vibration Strength</label>
+    </div>
+    <div class="input-group">
+    <div class="slider-group-full">
+      <label class="full-l-header" for="vSlider">Vibration Strength</label>
       <div class="slider-wrap">
         <input type="range" id="vSlider" min="0.01" max="0.1" step="0.01" value="0.02">
-        <input type="number" id="vNumber" min="0.01" max="0.1" step="0.01" value="0.02">
+        <input class="big-num" type="number" id="vNumber" min="0.01" max="0.1" step="0.01" value="0.02">
       </div>
     </div>
 
-    <div class="slider-group">
-      <label for="numSlider">Number of Particles</label>
+    <div class="slider-group-full">
+      <label class="full-l-header" for="numSlider">Number of Particles</label>
       <div class="slider-wrap">
         <input type="range" id="numSlider" min="2000" max="150000" step="1000" value="40000">
-        <input type="number" id="numNumber" min="2000" max="150000" step="1000" value="40000">
+        <input class="big-num" type="number" id="numNumber" min="2000" max="150000" step="1000" value="40000">
       </div>
     </div>
-
-    <div class="slider-group">
-      <label for="zoomSlider">Zoom</label>
+    </div>
+<div class="input-group">
+    <div class="slider-group-full">
+      <label class="full-l-header"  for="zoomSlider">Zoom</label>
       <div class="slider-wrap">
         <input type="range" id="zoomSlider" min="0.2" max="2.5" step="0.01" value="1">
-        <input type="number" id="zoomNumber" min="0.2" max="2.5" step="0.01" value="1">
+        <input class="big-num" type="number" id="zoomNumber" min="0.2" max="2.5" step="0.01" value="1">
       </div>
     </div>
 
-    <div class="slider-group">
-      <label for="dotSlider">Dot Size</label>
+    <div class="slider-group-full">
+      <label class="full-l-header"  for="dotSlider">Dot Size</label>
       <div class="slider-wrap">
         <input type="range" id="dotSlider" min="0.1" max="3" step="0.1" value="1">
-        <input type="number" id="dotNumber" min="0.1" max="3" step="0.1" value="1">
+        <input class="big-num" type="number" id="dotNumber" min="0.1" max="3" step="0.1" value="1">
       </div>
     </div>
 
-    <div class="slider-group">
-      <label for="jitterSlider">Pattern Jitter</label>
+    <div class="slider-group-full">
+      <label class="full-l-header"  for="jitterSlider">Pattern Jitter</label>
       <div class="slider-wrap">
         <input type="range" id="jitterSlider" min="0" max="1" step="0.01" value="0.25">
-        <input type="number" id="jitterNumber" min="0" max="1" step="0.01" value="0.25">
+        <input class="big-num" type="number" id="jitterNumber" min="0" max="1" step="0.01" value="0.25">
       </div>
     </div>
-
+    </div>
+    <div class="input-group">
     <div class="color-pickers">
-      <div>
-        <label for="dotColor">Particle</label>
-        <input type="color" id="dotColor" value="#ffffff">
+      <div class="color-box">
+       
+        <input class="color"type="color" id="dotColor" value="#ffffff">
+  <div class="color-input">
+     <label for="dotColor">Particle</label>
         <input type="text" class="hex-input" id="dotHex" value="#ffffff">
+        </div>
       </div>
-      <div>
+      <div class="color-box">
+         <input class="color" type="color" id="bgColor" value="#000000">
+        <div class="color-input">
         <label for="bgColor">Background</label>
-        <input type="color" id="bgColor" value="#000000">
+       
         <input type="text" class="hex-input" id="bgHex" value="#000000">
+        </div>
       </div>
     </div>
+      </div>
 
     <button id="saveBtn">Save Image</button>
   </header>
@@ -293,7 +488,6 @@
   </script>
 </body>
 </html>
-
 
 
 

@@ -94,16 +94,13 @@ function DOMinit() {
       panel.classList.toggle('hidden', !showUI);
     }
 
-    const code = e.key.toLowerCase();
-    const increment = 0.05;
-    const keys = ['a', 'b', 'm', 'n'];
-
-    if (keys.includes(code)) {
-      heldLetter = code;
+    const key = e.key.toLowerCase();
+    if (['a', 'b', 'm', 'n'].includes(key)) {
+      heldLetter = key;
     } else if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && heldLetter) {
       const dir = e.key === 'ArrowUp' ? 1 : -1;
       const slider = sliders[heldLetter];
-      let value = parseFloat(slider.value()) + dir * increment;
+      let value = parseFloat(slider.value()) + dir * 0.05;
       const min = parseFloat(slider.attribute('min'));
       const max = parseFloat(slider.attribute('max'));
       value = constrain(value, min, max);

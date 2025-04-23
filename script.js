@@ -2,7 +2,6 @@ let particles = [], sliders = {}, m, n, a, b, v, N, zoom, dotSize, jitterAmount;
 let target = {};
 let dotColorPicker, bgColorPicker;
 let showUI = true;
-let heldLetter = null;
 
 const settings = {
   nParticles: 150000,
@@ -94,35 +93,23 @@ function DOMinit() {
       panel.classList.toggle('hidden', !showUI);
     }
 
+    // Simple key shortcuts for bumping parameters
     const key = e.key.toLowerCase();
-    if (['a', 'b', 'm', 'n'].includes(key)) {
-      heldLetter = key;
-    }
-
-    if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && heldLetter) {
-      const dir = e.key === 'ArrowUp' ? 1 : -1;
-      const slider = sliders[heldLetter];
-      if (!slider) return;
-
-      let value = parseFloat(slider.value()) + dir * 0.05;
+    const increment = 1;
+    if (key === 'a' || key === 'b' || key === 'm' || key === 'n') {
+      const slider = sliders[key];
+      let value = parseFloat(slider.value()) + increment;
       const min = parseFloat(slider.attribute('min'));
       const max = parseFloat(slider.attribute('max'));
       value = constrain(value, min, max);
-
       slider.value(value);
       let tween = {};
-      tween[heldLetter] = value;
+      tween[key] = value;
       gsap.to(target, {
         duration: 0.5,
         ease: CustomEase.create("custom", "0.23, 0.62, 0.26, 0.84"),
         ...tween
       });
-    }
-  });
-
-  document.addEventListener('keyup', (e) => {
-    if (["a", "b", "m", "n"].includes(e.key.toLowerCase())) {
-      heldLetter = null;
     }
   });
 }
@@ -219,4 +206,3 @@ window.addEventListener('resize', () => {
   resizeCanvas(window.innerWidth, window.innerHeight);
   wipeScreen();
 });
-

@@ -2,6 +2,7 @@ let particles = [], sliders = {}, m, n, a, b, v, N, zoom, dotSize, jitterAmount;
 let target = {};
 let dotColorPicker, bgColorPicker;
 let showUI = true;
+let heldLetter = null;
 
 const settings = {
   nParticles: 150000,
@@ -92,17 +93,14 @@ function DOMinit() {
       const panel = document.querySelector('header');
       panel.classList.toggle('hidden', !showUI);
     }
-  });
 
-  // Handle param nudging using arrow + letter
-  document.addEventListener('keydown', (e) => {
     const code = e.key.toLowerCase();
     const increment = 0.05;
     const keys = ['a', 'b', 'm', 'n'];
+
     if (keys.includes(code)) {
       heldLetter = code;
-    }
-    if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && heldLetter) {
+    } else if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && heldLetter) {
       const dir = e.key === 'ArrowUp' ? 1 : -1;
       const slider = sliders[heldLetter];
       let value = parseFloat(slider.value()) + dir * increment;
@@ -126,8 +124,6 @@ function DOMinit() {
     }
   });
 }
-
-let heldLetter = null;
 
 function setupParticles() {
   particles = [];
@@ -221,4 +217,5 @@ window.addEventListener('resize', () => {
   resizeCanvas(window.innerWidth, window.innerHeight);
   wipeScreen();
 });
+
 

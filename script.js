@@ -94,32 +94,40 @@ function DOMinit() {
     }
   });
 
-  // Handle live param nudging via key + mouse
+  // Handle param nudging using arrow + letter
   document.addEventListener('keydown', (e) => {
-    const increment = 0.05;
     const code = e.key.toLowerCase();
-    if (["a", "b", "m", "n"].includes(code)) {
-      const isRightClick = mouseIsPressed && mouseButton === RIGHT;
-      const isLeftClick = mouseIsPressed && mouseButton === LEFT;
-      if (isRightClick || isLeftClick) {
-        const dir = isRightClick ? 1 : -1;
-        const slider = sliders[code];
-        let value = parseFloat(slider.value()) + dir * increment;
-        const min = parseFloat(slider.attribute('min'));
-        const max = parseFloat(slider.attribute('max'));
-        value = constrain(value, min, max);
-        slider.value(value);
-        let tween = {};
-        tween[code] = value;
-        gsap.to(target, {
-          duration: 0.5,
-          ease: CustomEase.create("custom", "0.23, 0.62, 0.26, 0.84"),
-          ...tween
-        });
-      }
+    const increment = 0.05;
+    const keys = ['a', 'b', 'm', 'n'];
+    if (keys.includes(code)) {
+      heldLetter = code;
+    }
+    if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && heldLetter) {
+      const dir = e.key === 'ArrowUp' ? 1 : -1;
+      const slider = sliders[heldLetter];
+      let value = parseFloat(slider.value()) + dir * increment;
+      const min = parseFloat(slider.attribute('min'));
+      const max = parseFloat(slider.attribute('max'));
+      value = constrain(value, min, max);
+      slider.value(value);
+      let tween = {};
+      tween[heldLetter] = value;
+      gsap.to(target, {
+        duration: 0.5,
+        ease: CustomEase.create("custom", "0.23, 0.62, 0.26, 0.84"),
+        ...tween
+      });
+    }
+  });
+
+  document.addEventListener('keyup', (e) => {
+    if (["a", "b", "m", "n"].includes(e.key.toLowerCase())) {
+      heldLetter = null;
     }
   });
 }
+
+let heldLetter = null;
 
 function setupParticles() {
   particles = [];
@@ -213,5 +221,4 @@ window.addEventListener('resize', () => {
   resizeCanvas(window.innerWidth, window.innerHeight);
   wipeScreen();
 });
-
 

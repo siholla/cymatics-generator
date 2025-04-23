@@ -97,13 +97,18 @@ function DOMinit() {
     const key = e.key.toLowerCase();
     if (['a', 'b', 'm', 'n'].includes(key)) {
       heldLetter = key;
-    } else if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && heldLetter) {
+    }
+
+    if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && heldLetter) {
       const dir = e.key === 'ArrowUp' ? 1 : -1;
       const slider = sliders[heldLetter];
+      if (!slider) return;
+
       let value = parseFloat(slider.value()) + dir * 0.05;
       const min = parseFloat(slider.attribute('min'));
       const max = parseFloat(slider.attribute('max'));
       value = constrain(value, min, max);
+
       slider.value(value);
       let tween = {};
       tween[heldLetter] = value;
@@ -214,5 +219,4 @@ window.addEventListener('resize', () => {
   resizeCanvas(window.innerWidth, window.innerHeight);
   wipeScreen();
 });
-
 

@@ -93,7 +93,6 @@ function DOMinit() {
       panel.classList.toggle('hidden', !showUI);
     }
 
-    // Simple key shortcuts for bumping parameters
     const key = e.key.toLowerCase();
     const increment = 1;
     if (key === 'a' || key === 'b' || key === 'm' || key === 'n') {
@@ -146,8 +145,9 @@ class Particle {
   }
 
   show() {
-    strokeWeight(dotSize);
-    point(this.xOff, this.yOff);
+    noStroke();
+    fill(dotColorPicker.value());
+    square(this.xOff, this.yOff, dotSize); // Draw square pixels instead of points
   }
 }
 
@@ -187,7 +187,6 @@ function drawHeatmap() {
 
 function wipeScreen() {
   background(bgColorPicker.value());
-  stroke(dotColorPicker.value());
 }
 
 function setup() {

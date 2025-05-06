@@ -1,4 +1,4 @@
-let particles = [], sliders = {}, m, n, a, b, v, N, zoom, dotSize, jitterAmount;
+let particles = [], sliders = {}, m, n, a, b, v, N, zoom, dotSize, jitterAmount, pixelGridSize;
 let target = {};
 let dotColorPicker, bgColorPicker;
 let showUI = true;
@@ -27,7 +27,8 @@ function DOMinit() {
     num: select('#numSlider'),
     zoom: select('#zoomSlider'),
     dot: select('#dotSlider'),
-    jitter: select('#jitterSlider')
+    jitter: select('#jitterSlider'),
+    grid: select('#gridSlider')
   };
 
   dotColorPicker = select('#dotColor');
@@ -56,7 +57,8 @@ function DOMinit() {
     num: select('#numNumber'),
     zoom: select('#zoomNumber'),
     dot: select('#dotNumber'),
-    jitter: select('#jitterNumber')
+    jitter: select('#jitterNumber'),
+    grid: select('#gridNumber')
   };
 
   for (let key in numberInputs) {
@@ -115,15 +117,20 @@ function DOMinit() {
 
 function setupParticles() {
   particles = [];
-  for (let i = 0; i < settings.nParticles; i++) {
-    particles[i] = new Particle();
+  const gridSize = int(1 / pixelGridSize);
+  for (let i = 0; i <= gridSize; i++) {
+    for (let j = 0; j <= gridSize; j++) {
+      let x = map(i, 0, gridSize, -0.5, 0.5);
+      let y = map(j, 0, gridSize, -0.5, 0.5);
+      particles.push(new Particle(x, y));
+    }
   }
 }
 
 class Particle {
-  constructor() {
-    this.x = random(-0.5, 0.5);
-    this.y = random(-0.5, 0.5);
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
     this.updateOffsets();
   }
 
@@ -147,7 +154,7 @@ class Particle {
   show() {
     noStroke();
     fill(dotColorPicker.value());
-    square(this.xOff, this.yOff, dotSize); // Draw square pixels instead of points
+    square(this.xOff, this.yOff, dotSize);
   }
 }
 
@@ -169,6 +176,7 @@ function updateParams() {
   zoom = target.zoom;
   dotSize = target.dot;
   jitterAmount = target.jitter;
+  pixelGridSize = target.grid;
 }
 
 function drawHeatmap() {
